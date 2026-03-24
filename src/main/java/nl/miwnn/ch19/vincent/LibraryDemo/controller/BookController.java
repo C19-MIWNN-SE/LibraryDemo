@@ -1,10 +1,12 @@
 package nl.miwnn.ch19.vincent.LibraryDemo.controller;
 
+import jakarta.validation.Valid;
 import nl.miwnn.ch19.vincent.LibraryDemo.model.Book;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
@@ -34,7 +36,7 @@ public class BookController {
 
     @GetMapping("/")
     public String showIndex() {
-        return "index";
+        return "redirect:/books";
     }
 
     @GetMapping("/books")
@@ -60,34 +62,31 @@ public class BookController {
         return "books";
     }
 
-    @GetMapping("/books/add")
-    public String showAddBookForm(Model model) {
-        log.debug("Formulier voor nieuw boek opgevraagd");
-        model.addAttribute("book", new Book());
-        return "add-book";
-    }
-
-    @GetMapping("/books/edit/{title}")
-    public String showEditForm(@PathVariable String title, Model model) {
+    @GetMapping({"/books/edit", "/books/edit/{title}"})
+    public String showEditForm(@PathVariable(required = false) String title, Model model) {
         log.info("Bewerkingsformulier geopend voor: {}", title);
 
         Book bookToEdit = books.stream()
                 .filter(book -> book.getTitle().equals(title))
                 .findFirst()
-                .orElse(null);
-
-        if (bookToEdit == null) {
-            log.warn("Boek niet gevonden voor bewerken: {}", title);
-            return "redirect:/books";
-        }
+                .orElse(new Book());
 
         model.addAttribute("book", bookToEdit);
         return "add-edit-book";
     }
 
     @PostMapping("/books/save")
-    public String saveBook(@ModelAttribute Book updatedBook, RedirectAttributes redirectAttributes) {
+    public String saveBook(@Valid @ModelAttribute Book updatedBook,
+                           BindingResult bindingResult,
+                           RedirectAttributes redirectAttributes) {
         log.info("Boek opslaan: {}", updatedBook.getTitle());
+
+        if (bindingResult.hasErrors()) {
+            log.warn("Validatiefouten bij opslaan: {}",
+                    bindingResult.getErrorCount());
+            return "add-edit-book";
+        }
+
         // Zoek het boek in de lijst en vervang het
         for (int i = 0; i < books.size(); i++) {
             if (books.get(i).getTitle().equals(updatedBook.getTitle())) {
@@ -98,24 +97,20 @@ public class BookController {
         }
         // Niet gevonden: voeg toe als nieuw boek
         books.add(updatedBook);
-        log.debug("Nieuw boek toegevoegd: {}", updatedBook.getTitle());
+        log.info("Nieuw boek toegevoegd: {}", updatedBook.getTitle());
         redirectAttributes.addFlashAttribute(
-                "successMessage", "Boek succesvol toegevoegd!");
-        return "redirect:/books";
-    }
-
-    @PostMapping("/books/add")
-    public String processAddBook(@ModelAttribute Book book) {
-        log.info("Nieuw boek toegevoegd: {}", book.getTitle());
-        books.add(book);
+                "successMessage", "Boek succesvol opgeslagen!");
         return "redirect:/books";
     }
 
     @GetMapping("/books/delete/{title}")
-    public String deleteBook(@PathVariable String title) {
+    public String deleteBook(@PathVariable String title,
+                             RedirectAttributes redirectAttributes) {
         log.info("Verwijderen van boek: {}", title);
         books.removeIf(book -> book.getTitle().equals(title));
+
+        redirectAttributes.addFlashAttribute(
+                "successMessage", "Boek succesvol verwijderd!");
         return "redirect:/books";
     }
-
 }

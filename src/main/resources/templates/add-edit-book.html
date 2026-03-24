@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title th:text="${paginaTitel}">Boek wijzigen of toevoegen</title>
+    <link rel="stylesheet" href="/style.css">
 </head>
 <body>
     <form th:action="@{/books/save}" method="post"
@@ -10,17 +11,31 @@
         <div>
             <label for="title">Titel</label>
             <input type="text" id="title" th:field="*{title}"/>
+            <span th:if="${#fields.hasErrors('title')}"
+                  th:errors="*{title}"
+                  class="error">
+            </span>
         </div>
         <div>
             <label for="authorName">Auteur</label>
             <input type="text" id="authorName" th:field="*{authorName}"/>
+            <span th:if="${#fields.hasErrors('authorName')}"
+                  th:errors="*{authorName}"
+                  class="error">
+            </span>
         </div>
         <div>
             <label for="publicationYear">Publicatiejaar</label>
             <input type="number" id="publicationYear"
                    th:field="*{publicationYear}"/>
+            <span th:if="${#fields.hasErrors('publicationYear')}"
+                  th:errors="*{publicationYear}"
+                  class="error">
+            </span>
         </div>
         <button type="submit">Opslaan</button>
     </form>
+    <br/>
+    <p><a th:href="@{/books}">Terug naar het overzicht</a></p>
 </body>
 </html>
