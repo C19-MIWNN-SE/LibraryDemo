@@ -6,8 +6,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,13 +33,32 @@ public class BookController {
                 "Jan Wolkers", 1969));
     }
 
+    @GetMapping("/")
+    public String showIndex() {
+        return "index";
+    }
+
     @GetMapping("/books")
     public String showBookOverview(Model model) {
         log.debug("Boekenoverzicht opgevraagd, {} boeken beschikbaar", books.size());
         model.addAttribute("paginaTitel", "Overzicht van onze boeken");
         model.addAttribute("allBooks", books);
 
-        return "bookOverview";
+        return "books";
+    }
+
+    @GetMapping("/books/add")
+    public String showAddBookForm(Model model) {
+        log.debug("Formulier voor nieuw boek opgevraagd");
+        model.addAttribute("book", new Book());
+        return "add-book";
+    }
+
+    @PostMapping("/books/add")
+    public String processAddBook(@ModelAttribute Book book) {
+        log.info("Nieuw boek toegevoegd: {}", book.getTitle());
+        books.add(book);
+        return "redirect:/books";
     }
 
 }
