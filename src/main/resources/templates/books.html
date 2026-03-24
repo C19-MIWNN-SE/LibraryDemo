@@ -7,6 +7,15 @@
 <body>
     <h1 th:text="${paginaTitel}">Boekenoverzicht</h1>
 
+    <form method="get" action="/books">
+        <input type="text" name="query"
+               th:value="${query}"
+               placeholder="Zoek op titel..."/>
+        <button type="submit">Zoeken</button>
+    </form>
+
+    <br/>
+
     <table>
         <thead>
             <tr>
@@ -20,6 +29,11 @@
                 <td th:text="${book.title}"></td>
                 <td th:text="${book.authorName}"></td>
                 <td th:text="${book.publicationYear}"></td>
+                <td>
+                    <a th:href="@{/books/delete/{title}(title=${book.title})}">
+                        Verwijderen
+                    </a>
+                </td>
             </tr>
         </tbody>
     </table>

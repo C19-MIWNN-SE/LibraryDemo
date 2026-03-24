@@ -5,9 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,10 +37,24 @@ public class BookController {
     }
 
     @GetMapping("/books")
-    public String showBookOverview(Model model) {
+    public String showBookOverview(@RequestParam(required = false) String query,
+                                   Model model) {
         log.debug("Boekenoverzicht opgevraagd, {} boeken beschikbaar", books.size());
+
+        List<Book> displayBooks;
+        if (query != null && !query.isBlank()) {
+            log.debug("Zoeken op query: {}", query);
+            displayBooks = books.stream()
+                    .filter(book -> book.getTitle()
+                            .toLowerCase()
+                            .contains(query.toLowerCase()))
+                    .toList();
+        } else {
+            displayBooks = books;
+        }
+
         model.addAttribute("paginaTitel", "Overzicht van onze boeken");
-        model.addAttribute("allBooks", books);
+        model.addAttribute("allBooks", displayBooks);
 
         return "books";
     }
@@ -58,6 +70,13 @@ public class BookController {
     public String processAddBook(@ModelAttribute Book book) {
         log.info("Nieuw boek toegevoegd: {}", book.getTitle());
         books.add(book);
+        return "redirect:/books";
+    }
+
+    @GetMapping("/books/delete/{title}")
+    public String deleteBook(@PathVariable String title) {
+        log.info("Verwijderen van boek: {}", title);
+        books.removeIf(book -> book.getTitle().equals(title));
         return "redirect:/books";
     }
 
