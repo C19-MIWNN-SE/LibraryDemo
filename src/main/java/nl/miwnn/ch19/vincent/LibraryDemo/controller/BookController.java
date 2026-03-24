@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -64,6 +65,43 @@ public class BookController {
         log.debug("Formulier voor nieuw boek opgevraagd");
         model.addAttribute("book", new Book());
         return "add-book";
+    }
+
+    @GetMapping("/books/edit/{title}")
+    public String showEditForm(@PathVariable String title, Model model) {
+        log.info("Bewerkingsformulier geopend voor: {}", title);
+
+        Book bookToEdit = books.stream()
+                .filter(book -> book.getTitle().equals(title))
+                .findFirst()
+                .orElse(null);
+
+        if (bookToEdit == null) {
+            log.warn("Boek niet gevonden voor bewerken: {}", title);
+            return "redirect:/books";
+        }
+
+        model.addAttribute("book", bookToEdit);
+        return "add-edit-book";
+    }
+
+    @PostMapping("/books/save")
+    public String saveBook(@ModelAttribute Book updatedBook, RedirectAttributes redirectAttributes) {
+        log.info("Boek opslaan: {}", updatedBook.getTitle());
+        // Zoek het boek in de lijst en vervang het
+        for (int i = 0; i < books.size(); i++) {
+            if (books.get(i).getTitle().equals(updatedBook.getTitle())) {
+                books.set(i, updatedBook);
+                log.debug("Bestaand boek bijgewerkt op index {}", i);
+                return "redirect:/books";
+            }
+        }
+        // Niet gevonden: voeg toe als nieuw boek
+        books.add(updatedBook);
+        log.debug("Nieuw boek toegevoegd: {}", updatedBook.getTitle());
+        redirectAttributes.addFlashAttribute(
+                "successMessage", "Boek succesvol toegevoegd!");
+        return "redirect:/books";
     }
 
     @PostMapping("/books/add")

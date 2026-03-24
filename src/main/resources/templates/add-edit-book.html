@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${paginaTitel}">Boek wijzigen of toevoegen</title>
+</head>
+<body>
+    <form th:action="@{/books/save}" method="post"
+          th:object="${book}">
+        <div>
+            <label for="title">Titel</label>
+            <input type="text" id="title" th:field="*{title}"/>
+        </div>
+        <div>
+            <label for="authorName">Auteur</label>
+            <input type="text" id="authorName" th:field="*{authorName}"/>
+        </div>
+        <div>
+            <label for="publicationYear">Publicatiejaar</label>
+            <input type="number" id="publicationYear"
+                   th:field="*{publicationYear}"/>
+        </div>
+        <button type="submit">Opslaan</button>
+    </form>
+</body>
+</html>

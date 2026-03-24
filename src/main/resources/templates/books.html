@@ -30,6 +30,9 @@
                 <td th:text="${book.authorName}"></td>
                 <td th:text="${book.publicationYear}"></td>
                 <td>
+                    <a th:href="@{/books/edit/{title}(title=${book.title})}">
+                        Bewerken
+                    </a>
                     <a th:href="@{/books/delete/{title}(title=${book.title})}">
                         Verwijderen
                     </a>
@@ -38,5 +41,11 @@
         </tbody>
     </table>
     <p><a th:href="@{/books/add}">Nieuw boek toevoegen</a></p>
+
+    <br/>
+    <div th:if="${successMessage}"
+         class="alert alert-success">
+        <span th:text="${successMessage}">Opgeslagen!</span>
+    </div>
 </body>
 </html>
