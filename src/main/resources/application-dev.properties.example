@@ -1,0 +1,9 @@
+
+spring.datasource.url=jdbc:mysql://localhost:3306/librarydemo
+spring.datasource.username=userLibrary
+spring.datasource.password=userLibraryPW
+
+logging.level.nl.miwnn.ch19.vincent.LibraryDemo=DEBUG
+
+spring.jpa.hibernate.ddl-auto=update
+spring.jpa.show-sql=true

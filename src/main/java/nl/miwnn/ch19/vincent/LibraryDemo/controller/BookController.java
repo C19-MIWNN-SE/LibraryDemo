@@ -2,8 +2,10 @@ package nl.miwnn.ch19.vincent.LibraryDemo.controller;
 
 import jakarta.validation.Valid;
 import nl.miwnn.ch19.vincent.LibraryDemo.model.Book;
+import nl.miwnn.ch19.vincent.LibraryDemo.repository.BookRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -12,6 +14,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * @author Vincent Velthuizen
@@ -20,19 +23,16 @@ import java.util.List;
 
 @Controller
 public class BookController {
+    @Value("${library.name-of-the-library}")
+    private String libraryName;
 
     private static final Logger log = LoggerFactory.getLogger(BookController.class);
+    private final BookRepository bookRepository;
 
-    private final List<Book> books = new ArrayList<>();
-
-    public BookController() {
-        books.add(new Book("De ontdekking van de hemel",
-                "Harry Mulisch", 1992));
-        books.add(new Book("Het Bureau",
-                "J.J. Voskuil", 1996));
-        books.add(new Book("Turks fruit",
-                "Jan Wolkers", 1969));
+    public BookController(BookRepository bookRepository) {
+        this.bookRepository = bookRepository;
     }
+
 
     @GetMapping("/")
     public String showIndex() {
@@ -42,6 +42,7 @@ public class BookController {
     @GetMapping("/books")
     public String showBookOverview(@RequestParam(required = false) String query,
                                    Model model) {
+        List<Book> books = bookRepository.findAll();
         log.debug("Boekenoverzicht opgevraagd, {} boeken beschikbaar", books.size());
 
         List<Book> displayBooks;
@@ -56,20 +57,30 @@ public class BookController {
             displayBooks = books;
         }
 
-        model.addAttribute("paginaTitel", "Overzicht van onze boeken");
+        model.addAttribute("paginaTitel", libraryName);
         model.addAttribute("allBooks", displayBooks);
 
         return "books";
     }
 
-    @GetMapping({"/books/edit", "/books/edit/{title}"})
-    public String showEditForm(@PathVariable(required = false) String title, Model model) {
-        log.info("Bewerkingsformulier geopend voor: {}", title);
+    @GetMapping("/books/new")
+    public String showCreateNewBookForm(Model model) {
+        model.addAttribute("book", new Book());
+        return "add-edit-book";
+    }
 
-        Book bookToEdit = books.stream()
-                .filter(book -> book.getTitle().equals(title))
-                .findFirst()
-                .orElse(new Book());
+    @GetMapping({"/books/edit/{bookId}"})
+    public String showEditForm(@PathVariable Long bookId, Model model, RedirectAttributes redirectAttributes) {
+        log.info("Bewerkingsformulier geopend voor: {}", bookId);
+
+        Optional<Book> bookToEdit = bookRepository.findById(bookId);
+
+        if (bookToEdit.isEmpty()) {
+            log.warn("Boek met id: {} is niet gevonden voor bewerking", bookId);
+            redirectAttributes.addFlashAttribute("bookNotFoundForEditing",
+                    String.format("Het boek met id: %d kon niet gevonden worden om te bewerken.", bookId));
+            return "redirect:/books";
+        }
 
         model.addAttribute("book", bookToEdit);
         return "add-edit-book";
@@ -87,27 +98,19 @@ public class BookController {
             return "add-edit-book";
         }
 
-        // Zoek het boek in de lijst en vervang het
-        for (int i = 0; i < books.size(); i++) {
-            if (books.get(i).getTitle().equals(updatedBook.getTitle())) {
-                books.set(i, updatedBook);
-                log.debug("Bestaand boek bijgewerkt op index {}", i);
-                return "redirect:/books";
-            }
-        }
-        // Niet gevonden: voeg toe als nieuw boek
-        books.add(updatedBook);
+        bookRepository.save(updatedBook);
         log.info("Nieuw boek toegevoegd: {}", updatedBook.getTitle());
         redirectAttributes.addFlashAttribute(
                 "successMessage", "Boek succesvol opgeslagen!");
         return "redirect:/books";
     }
 
-    @GetMapping("/books/delete/{title}")
-    public String deleteBook(@PathVariable String title,
+    @GetMapping("/books/delete/{bookId}")
+    public String deleteBook(@PathVariable Long bookId,
                              RedirectAttributes redirectAttributes) {
-        log.info("Verwijderen van boek: {}", title);
-        books.removeIf(book -> book.getTitle().equals(title));
+        log.info("Verwijderen van boek: {}", bookId);
+
+        bookRepository.deleteById(bookId);
 
         redirectAttributes.addFlashAttribute(
                 "successMessage", "Boek succesvol verwijderd!");
