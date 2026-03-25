@@ -18,12 +18,13 @@
             </span>
         </div>
         <div>
-            <label for="authorName">Auteur</label>
-            <input type="text" id="authorName" th:field="*{authorName}"/>
-            <span th:if="${#fields.hasErrors('authorName')}"
-                  th:errors="*{authorName}"
-                  class="error">
-            </span>
+            <label for="authors">Auteurs</label>
+            <select id="authors" th:field="*{authors}" multiple>
+                <option th:each="author : ${allAuthors}"
+                        th:value="${author.id}"
+                        th:text="${author.fullName}">
+                </option>
+            </select>
         </div>
         <div>
             <label for="publicationYear">Publicatiejaar</label>

@@ -3,6 +3,7 @@ package nl.miwnn.ch19.vincent.LibraryDemo.controller;
 import jakarta.validation.Valid;
 import nl.miwnn.ch19.vincent.LibraryDemo.model.Book;
 import nl.miwnn.ch19.vincent.LibraryDemo.model.Copy;
+import nl.miwnn.ch19.vincent.LibraryDemo.repository.AuthorRepository;
 import nl.miwnn.ch19.vincent.LibraryDemo.repository.BookRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,9 +30,11 @@ public class BookController {
 
     private static final Logger log = LoggerFactory.getLogger(BookController.class);
     private final BookRepository bookRepository;
+    private final AuthorRepository authorRepository;
 
-    public BookController(BookRepository bookRepository) {
+    public BookController(BookRepository bookRepository, AuthorRepository authorRepository) {
         this.bookRepository = bookRepository;
+        this.authorRepository = authorRepository;
     }
 
 
@@ -78,6 +81,7 @@ public class BookController {
     @GetMapping("/books/new")
     public String showCreateNewBookForm(Model model) {
         model.addAttribute("book", new Book());
+        model.addAttribute("allAuthors", authorRepository.findAll());
         return "add-edit-book";
     }
 
@@ -95,18 +99,22 @@ public class BookController {
         }
 
         model.addAttribute("book", bookToEdit);
+        model.addAttribute("allAuthors", authorRepository.findAll());
         return "add-edit-book";
     }
 
     @PostMapping("/books/save")
     public String saveBook(@Valid @ModelAttribute Book updatedBook,
                            BindingResult bindingResult,
+                           Model model,
                            RedirectAttributes redirectAttributes) {
         log.info("Boek opslaan: {}", updatedBook.getTitle());
 
         if (bindingResult.hasErrors()) {
             log.warn("Validatiefouten bij opslaan: {}",
                     bindingResult.getErrorCount());
+
+            model.addAttribute("allAuthors", authorRepository.findAll());
             return "add-edit-book";
         }
 

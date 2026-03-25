@@ -20,8 +20,8 @@ public class Book {
     @Size(max = 200, message = "Titel mag maximaal 200 tekens bevatten")
     private String title;
 
-    @NotBlank(message = "Auteur mag niet leeg zijn")
-    private String authorName;
+    @ManyToMany
+    private List<Author> authors = new ArrayList<>();
 
     @NotNull(message = "Publicatiejaar is verplicht")
     @Min(value = 1000, message = "Publicatiejaar moet minimaal 1000 zijn")
@@ -31,9 +31,8 @@ public class Book {
     @OneToMany(mappedBy = "book", cascade = CascadeType.ALL)
     private List<Copy> copies = new ArrayList<>();
 
-    public Book(String title, String authorName, Integer publicationYear) {
+    public Book(String title, Integer publicationYear) {
         this.title = title;
-        this.authorName = authorName;
         this.publicationYear = publicationYear;
     }
 
@@ -55,12 +54,12 @@ public class Book {
         this.title = title;
     }
 
-    public String getAuthorName() {
-        return authorName;
+    public List<Author> getAuthors() {
+        return authors;
     }
 
-    public void setAuthorName(String authorName) {
-        this.authorName = authorName;
+    public void setAuthors(List<Author> authors) {
+        this.authors = authors;
     }
 
     public Integer getPublicationYear() {

@@ -32,7 +32,11 @@
                         Titel
                     </a>
                 </td>
-                <td th:text="${book.authorName}"></td>
+                <td>
+                    <span th:each="author, iterStat : ${book.authors}">
+                        <span th:text="${author.fullName}"></span><span th:if="!${iterStat.last}">, </span>
+                    </span>
+                </td>
                 <td th:text="${book.publicationYear}"></td>
                 <td>
                     <a th:href="@{/books/edit/{bookId}(bookId=${book.id})}">
