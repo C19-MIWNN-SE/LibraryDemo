@@ -98,7 +98,7 @@ public class BookController {
             return "redirect:/books";
         }
 
-        model.addAttribute("book", bookToEdit);
+        model.addAttribute("book", bookToEdit.get());
         model.addAttribute("allAuthors", authorRepository.findAll());
         return "add-edit-book";
     }
