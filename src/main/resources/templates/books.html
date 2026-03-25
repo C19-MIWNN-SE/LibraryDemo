@@ -26,7 +26,12 @@
         </thead>
         <tbody>
             <tr th:each="book : ${allBooks}">
-                <td th:text="${book.title}"></td>
+                <td>
+                    <a th:href="@{/book/{bookId}(bookId=${book.id})}"
+                       th:text="${book.title}">
+                        Titel
+                    </a>
+                </td>
                 <td th:text="${book.authorName}"></td>
                 <td th:text="${book.publicationYear}"></td>
                 <td>

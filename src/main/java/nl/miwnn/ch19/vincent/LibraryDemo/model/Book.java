@@ -1,10 +1,10 @@
 package nl.miwnn.ch19.vincent.LibraryDemo.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Vincent Velthuizen
@@ -27,6 +27,9 @@ public class Book {
     @Min(value = 1000, message = "Publicatiejaar moet minimaal 1000 zijn")
     @Max(value = 2100, message = "Publicatiejaar mag maximaal 2100 zijn")
     private Integer publicationYear;
+
+    @OneToMany(mappedBy = "book", cascade = CascadeType.ALL)
+    private List<Copy> copies = new ArrayList<>();
 
     public Book(String title, String authorName, Integer publicationYear) {
         this.title = title;
@@ -66,5 +69,13 @@ public class Book {
 
     public void setPublicationYear(Integer publicationYear) {
         this.publicationYear = publicationYear;
+    }
+
+    public List<Copy> getCopies() {
+        return copies;
+    }
+
+    public void setCopies(List<Copy> copies) {
+        this.copies = copies;
     }
 }

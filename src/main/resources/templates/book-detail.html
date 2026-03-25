@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="|Details van ${book.title}|">Title</title>
+</head>
+<body>
+    <h1 th:text="|Details van ${book.title}|"></h1>
+
+    <p>Dit boek is geschreven door: <span th:text="${book.authorName}"></span> en is uitgegeven in <span th:text="${book.publicationYear}"></span></p>
+
+    <h2>Exemplaren</h2>
+    <table>
+        <thead>
+        <tr>
+            <th>Exemplaar</th>
+            <th>Status</th>
+            <th></th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="copy : ${book.copies}">
+            <td th:text="${copy.id}">1</td>
+            <td th:text="${copy.available} ? 'Beschikbaar' : 'Uitgeleend'">
+                Status
+            </td>
+            <td>
+                <form th:if="${copy.available}"
+                      th:action="@{/copies/borrow/{id}(id=${copy.id})}"
+                      method="post">
+                    <button type="submit">Lenen</button>
+                </form>
+                <form th:unless="${copy.available}"
+                      th:action="@{/copies/return/{id}(id=${copy.id})}"
+                      method="post">
+                    <button type="submit">Terugbrengen</button>
+                </form>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</body>
+</html>

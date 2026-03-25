@@ -2,6 +2,7 @@ package nl.miwnn.ch19.vincent.LibraryDemo.controller;
 
 import jakarta.validation.Valid;
 import nl.miwnn.ch19.vincent.LibraryDemo.model.Book;
+import nl.miwnn.ch19.vincent.LibraryDemo.model.Copy;
 import nl.miwnn.ch19.vincent.LibraryDemo.repository.BookRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -63,6 +64,17 @@ public class BookController {
         return "books";
     }
 
+    @GetMapping("/book/{id}")
+    public String showBookDetail(
+            @PathVariable Long id, Model model) {
+        Optional<Book> book = bookRepository.findById(id);
+        if (book.isEmpty()) {
+            return "redirect:/books";
+        }
+        model.addAttribute("book", book.get());
+        return "book-detail";
+    }
+
     @GetMapping("/books/new")
     public String showCreateNewBookForm(Model model) {
         model.addAttribute("book", new Book());
@@ -96,6 +108,12 @@ public class BookController {
             log.warn("Validatiefouten bij opslaan: {}",
                     bindingResult.getErrorCount());
             return "add-edit-book";
+        }
+
+        if (updatedBook.getCopies().isEmpty()) {
+            updatedBook.getCopies().add(new Copy(updatedBook));
+            updatedBook.getCopies().add(new Copy(updatedBook));
+            updatedBook.getCopies().add(new Copy(updatedBook));
         }
 
         bookRepository.save(updatedBook);
