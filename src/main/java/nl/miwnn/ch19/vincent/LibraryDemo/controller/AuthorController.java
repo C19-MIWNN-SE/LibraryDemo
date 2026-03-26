@@ -4,7 +4,6 @@ import jakarta.validation.Valid;
 import nl.miwnn.ch19.vincent.LibraryDemo.model.Author;
 import nl.miwnn.ch19.vincent.LibraryDemo.model.Copy;
 import nl.miwnn.ch19.vincent.LibraryDemo.repository.AuthorRepository;
-import nl.miwnn.ch19.vincent.LibraryDemo.repository.BookRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
