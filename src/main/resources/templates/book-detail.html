@@ -7,7 +7,25 @@
 <body>
     <h1 th:text="|Details van ${book.title}|"></h1>
 
-    <p>Dit boek is geschreven door:  en is uitgegeven in <span th:text="${book.publicationYear}"></span></p>
+    <p>
+        Dit boek is geschreven door:
+        <span th:each="author, iterStat : ${book.authors}">
+            <span th:text="${author.fullName}"></span><span th:if="!${iterStat.last}">, </span>
+        </span>
+        en is uitgegeven in <span th:text="${book.publicationYear}"></span>
+    </p>
+
+    <ul>
+        <li>
+            <a th:href="@{/book/edit/{title}(title=${book.title})}">Bewerk dit boek</a>
+        </li>
+        <li>
+            <a th:href="@{/book/delete/{title}(title=${book.title})}">Verwijder dit boek</a>
+        </li>
+        <li>
+            <a th:href="@{/book/add-copy/{title}(title=${book.title})}">Koop exemplaar</a>
+        </li>
+    </ul>
 
     <h2>Exemplaren</h2>
     <table>

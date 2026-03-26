@@ -38,14 +38,6 @@
                     </span>
                 </td>
                 <td th:text="${book.publicationYear}"></td>
-                <td>
-                    <a th:href="@{/book/edit/{bookId}(bookId=${book.id})}">
-                        Bewerken
-                    </a>
-                    <a th:href="@{/book/delete/{bookId}(bookId=${book.id})}">
-                        Verwijderen
-                    </a>
-                </td>
             </tr>
         </tbody>
     </table>

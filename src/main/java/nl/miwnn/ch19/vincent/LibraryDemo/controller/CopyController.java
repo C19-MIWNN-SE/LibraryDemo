@@ -56,13 +56,13 @@ public class CopyController {
                     "copyStatechanged",
                     String.format("Exemplaar met id: %d voor boek met titel: %s is zojuist %sed",
                             copyId, copy.getBook().getTitle(), stateName));
-        } else {
-            log.warn("Copy with id: {} could not be {}ed, because it was not found or it was already {}}", copyId, stateName, stateName);
-            redirectAttributes.addFlashAttribute(
-                    "copyStatechanged",
-                    String.format("Exemplaar met id: %d kon niet worden %s want die is niet gevonden of al %s", copyId, stateName, stateName));
+
+            return "redirect:/book/detail" + copy.getBook().getTitle();
         }
 
-        return "redirect:/books";
+        log.warn("Copy with id: {} could not be {}ed, because it was not found or it was already {}}", copyId, stateName, stateName);
+        redirectAttributes.addFlashAttribute("succesMessage", "Exemplaar is geleend of teruggebracht");
+
+        return "redirect:/book/all";
     }
 }

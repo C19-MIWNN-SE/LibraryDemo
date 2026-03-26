@@ -2,15 +2,18 @@ package nl.miwnn.ch19.vincent.LibraryDemo.controller;
 
 import jakarta.validation.Valid;
 import nl.miwnn.ch19.vincent.LibraryDemo.model.Book;
+import nl.miwnn.ch19.vincent.LibraryDemo.model.Copy;
 import nl.miwnn.ch19.vincent.LibraryDemo.repository.AuthorRepository;
 import nl.miwnn.ch19.vincent.LibraryDemo.repository.BookRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
@@ -61,25 +64,25 @@ public class BookController {
     public String showCreateNewBookForm(Model model) {
         model.addAttribute("book", new Book());
         model.addAttribute("allAuthors", authorRepository.findAll());
-        return "book-add-edit";
+        return "book-form";
     }
 
-    @GetMapping({"/edit/{bookId}"})
-    public String showEditForm(@PathVariable Long bookId, Model model, RedirectAttributes redirectAttributes) {
-        log.info("Bewerkingsformulier geopend voor: {}", bookId);
+    @GetMapping({"/edit/{title}"})
+    public String showEditForm(@PathVariable String title, Model model, RedirectAttributes redirectAttributes) {
+        log.info("Bewerkingsformulier geopend voor boek: {}", title);
 
-        Optional<Book> bookToEdit = bookRepository.findById(bookId);
+        Optional<Book> bookToEdit = bookRepository.findBookByTitle(title);
 
         if (bookToEdit.isEmpty()) {
-            log.warn("Boek met id: {} is niet gevonden voor bewerking", bookId);
+            log.warn("Boek met titel: {} is niet gevonden voor bewerking", title);
             redirectAttributes.addFlashAttribute("bookNotFoundForEditing",
-                    String.format("Het boek met id: %d kon niet gevonden worden om te bewerken.", bookId));
+                    "Boek om te bewerken niet gevonden");
             return "redirect:/book/all";
         }
 
         model.addAttribute("book", bookToEdit.get());
         model.addAttribute("allAuthors", authorRepository.findAll());
-        return "book-add-edit";
+        return "book-form";
     }
 
     @PostMapping("/save")
@@ -88,6 +91,7 @@ public class BookController {
                            Model model,
                            RedirectAttributes redirectAttributes) {
         log.info("Boek opslaan: {}", updatedBook.getTitle());
+
         if (updatedBook.getId() != null &&
                 bookRepository
                         .findById(updatedBook.getId())
@@ -106,30 +110,46 @@ public class BookController {
         }
 
         if (bindingResult.hasErrors()) {
-            log.warn("Validatiefouten bij opslaan: {}",
+            log.warn("Aantal validatiefouten bij opslaan: {}",
                     bindingResult.getErrorCount());
 
             model.addAttribute("allAuthors", authorRepository.findAll());
-            return "book-add-edit";
+            return "book-form";
         }
 
         bookRepository.save(updatedBook);
-        log.info("Nieuw boek toegevoegd: {}", updatedBook.getTitle());
+        log.info("Boek opgeslagen: {}", updatedBook.getTitle());
         redirectAttributes.addFlashAttribute(
                 "successMessage", "Boek succesvol opgeslagen!");
         return "redirect:/book/all";
     }
 
-    @GetMapping("/delete/{bookId}")
-    public String deleteBook(@PathVariable Long bookId,
+    @GetMapping("/delete/{title}")
+    public String deleteBook(@PathVariable String title,
                              RedirectAttributes redirectAttributes) {
-        log.info("Verwijderen van boek: {}", bookId);
+        log.info("Verwijderen van boek: {}", title);
 
-        bookRepository.deleteById(bookId);
+        bookRepository.delete(bookRepository.findBookByTitle(title).orElseThrow(
+                () -> new HttpClientErrorException(HttpStatus.NOT_FOUND)));
 
         redirectAttributes.addFlashAttribute(
                 "successMessage", "Boek succesvol verwijderd!");
         return "redirect:/book/all";
+    }
+
+    @GetMapping("/add-copy/{title}")
+    public String addCopyToBook(@PathVariable String title,
+                             RedirectAttributes redirectAttributes) {
+        log.info("Voeg exemplaar toe van boek: {}", title);
+
+        Book book = bookRepository.findBookByTitle(title).orElseThrow(
+                () -> new HttpClientErrorException(HttpStatus.NOT_FOUND));
+        book.getCopies().add(new Copy(book));
+        bookRepository.save(book);
+
+        redirectAttributes.addFlashAttribute(
+                "successMessage", "Exemplaar succesvol toegevoegd!");
+        return "redirect:/book/detail/" + title;
     }
 
     @GetMapping({"/{title}", "/detail/{title}"})
