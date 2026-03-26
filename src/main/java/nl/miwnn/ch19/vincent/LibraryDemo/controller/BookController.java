@@ -55,6 +55,7 @@ public class BookController {
 
         model.addAttribute("paginaTitel", libraryName);
         model.addAttribute("allBooks", displayBooks);
+        model.addAttribute("activePage", "books");
 
         return "book-overview";
     }

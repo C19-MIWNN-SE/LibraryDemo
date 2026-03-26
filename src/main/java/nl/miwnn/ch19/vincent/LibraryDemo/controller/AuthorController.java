@@ -35,6 +35,7 @@ public class AuthorController {
     public String showAuthorOverviewWithForm(Model model) {
         model.addAttribute("allAuthors", authorRepository.findAll());
         model.addAttribute("newAuthor", new Author());
+        model.addAttribute("activePage", "authors");
 
         return "author-overview";
     }

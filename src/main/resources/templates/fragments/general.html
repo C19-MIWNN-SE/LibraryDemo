@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="nl" xmlns:th="http://www.thymeleaf.org">
+
+<head th:fragment="baseheader(title)">
+    <meta charset="UTF-8">
+
+    <title th:replace="${title}">This is the base title</title>
+
+    <link rel="stylesheet" type="text/css" href="/css/style.css"/>
+</head>
+
+<body>
+<nav th:fragment="navbar">
+    <ul>
+        <li>
+            <a href="/book/all"
+               th:classappend="${activePage == 'books'} ? 'active' : ''">
+                Boeken
+            </a>
+        </li>
+        <li>
+            <a href="/author/all"
+               th:classappend="${activePage == 'authors'} ? 'active' : ''">
+                Auteurs
+            </a>
+        </li>
+    </ul>
+</nav>
+
+<footer th:fragment="footer">
+    <p>&copy;Library Demo - Vincent Velthuizen 2026</p>
+</footer>
+</body>
+</html>
