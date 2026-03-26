@@ -1,11 +1,12 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{fragments/general :: baseheader(~{:: title})}">
-    <title>Boekenoverzicht</title>
+    <title>Vervang deze titel!</title>
 </head>
 <body>
-    <nav th:replace="~{fragments/general :: navbar}"></nav>
+<nav th:replace="~{fragments/general :: navbar}"></nav>
 
+<div class="container">
     <h1>Boekenoverzicht</h1>
 
     <form method="get" action="/books">
@@ -19,37 +20,34 @@
 
     <table>
         <thead>
-            <tr>
-                <th>Titel</th>
-                <th>Auteur</th>
-                <th>Jaar</th>
-            </tr>
+        <tr>
+            <th>Titel</th>
+            <th>Auteur</th>
+            <th>Jaar</th>
+        </tr>
         </thead>
         <tbody>
-            <tr th:each="book : ${allBooks}">
-                <td>
-                    <a th:href="@{/book/{title}(title=${book.title})}"
-                       th:text="${book.title}">
-                        Titel
-                    </a>
-                </td>
-                <td>
+        <tr th:each="book : ${allBooks}">
+            <td>
+                <a th:href="@{/book/{title}(title=${book.title})}"
+                   th:text="${book.title}">
+                    Titel
+                </a>
+            </td>
+            <td>
                     <span th:each="author, iterStat : ${book.authors}">
                         <span th:text="${author.fullName}"></span><span th:if="!${iterStat.last}">, </span>
                     </span>
-                </td>
-                <td th:text="${book.publicationYear}"></td>
-            </tr>
+            </td>
+            <td th:text="${book.publicationYear}"></td>
+        </tr>
         </tbody>
     </table>
     <p><a th:href="@{/book/add}">Nieuw boek toevoegen</a></p>
+</div>
 
-    <br/>
-    <div th:if="${successMessage}"
-         class="alert alert-success">
-        <span th:text="${successMessage}">Opgeslagen!</span>
-    </div>
+<footer th:replace="~{fragments/general :: footer}"></footer>
 
-    <footer th:replace="~{fragments/general :: footer}"></footer>
+<div th:replace="~{fragments/general :: scripts}"></div>
 </body>
 </html>

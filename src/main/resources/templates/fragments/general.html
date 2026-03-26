@@ -5,30 +5,47 @@
     <meta charset="UTF-8">
 
     <title th:replace="${title}">This is the base title</title>
-
+    <link rel="stylesheet" th:href="@{/webjars/bootstrap/css/bootstrap.min.css}">
+    <link rel="stylesheet" th:href="@{/webjars/bootstrap-icons/font/bootstrap-icons.css}">
     <link rel="stylesheet" type="text/css" href="/css/style.css"/>
 </head>
 
 <body>
-<nav th:fragment="navbar">
-    <ul>
-        <li>
-            <a href="/book/all"
-               th:classappend="${activePage == 'books'} ? 'active' : ''">
-                Boeken
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark"
+     th:fragment="navbar">
+    <div class="container">
+        <a class="navbar-brand" href="/">LibraryDemo</a>
+        <div class="navbar-nav">
+            <a class="nav-link"
+               th:classappend="${activePage == 'books'} ? 'active' : ''"
+               href="/book/all">
+                <i class="bi bi-book"></i> Boeken
             </a>
-        </li>
-        <li>
-            <a href="/author/all"
-               th:classappend="${activePage == 'authors'} ? 'active' : ''">
-                Auteurs
+            <a class="nav-link"
+               th:classappend="${activePage == 'authors'} ? 'active' : ''"
+               href="/author/all">
+                <i class="bi bi-person"></i> Auteurs
             </a>
-        </li>
-    </ul>
+        </div>
+    </div>
 </nav>
 
-<footer th:fragment="footer">
-    <p>&copy;Library Demo - Vincent Velthuizen 2026</p>
+<footer class="footer mt-auto py-3 bg-light"
+        th:fragment="footer">
+    <div class="container">
+        <div th:if="${successMessage}"
+             class="alert alert-success">
+            <span th:text="${successMessage}">Opgeslagen!</span>
+        </div>
+<span class="text-muted">
+&copy;Library Demo - Vincent Velthuizen 2026
+</span>
+    </div>
 </footer>
+
+<div th:fragment="scripts">
+    <script th:src="@{/webjars/bootstrap/js/bootstrap.bundle.min.js}"></script>
+</div>
+
 </body>
 </html>

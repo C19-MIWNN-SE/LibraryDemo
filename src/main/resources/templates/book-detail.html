@@ -5,6 +5,8 @@
 </head>
 <body>
 <nav th:replace="~{fragments/general :: navbar}"></nav>
+
+<div class="container">
     <h1 th:text="|Details van ${book.title}|"></h1>
 
     <p>
@@ -57,7 +59,10 @@
         </tr>
         </tbody>
     </table>
+</div>
 
 <footer th:replace="~{fragments/general :: footer}"></footer>
+
+<div th:replace="~{fragments/general :: scripts}"></div>
 </body>
 </html>

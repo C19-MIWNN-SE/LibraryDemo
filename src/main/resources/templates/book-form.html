@@ -1,10 +1,12 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{fragments/general :: baseheader(~{:: title})}">
-    <title th:text="${paginaTitel}">Boek wijzigen of toevoegen</title>
+    <title>Boek wijzigen of toevoegen</title>
 </head>
 <body>
 <nav th:replace="~{fragments/general :: navbar}"></nav>
+
+<div class="container">
     <form th:action="@{/book/save}" method="post"
           th:object="${book}">
         <input type="hidden" th:field="*{id}">
@@ -38,7 +40,10 @@
     </form>
     <br/>
     <p><a th:href="@{/book/all}">Terug naar het overzicht</a></p>
+</div>
 
 <footer th:replace="~{fragments/general :: footer}"></footer>
+
+<div th:replace="~{fragments/general :: scripts}"></div>
 </body>
 </html>

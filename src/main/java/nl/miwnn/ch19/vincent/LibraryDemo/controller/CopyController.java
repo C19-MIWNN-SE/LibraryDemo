@@ -57,7 +57,7 @@ public class CopyController {
                     String.format("Exemplaar met id: %d voor boek met titel: %s is zojuist %sed",
                             copyId, copy.getBook().getTitle(), stateName));
 
-            return "redirect:/book/detail" + copy.getBook().getTitle();
+            return "redirect:/book/detail/" + copy.getBook().getTitle();
         }
 
         log.warn("Copy with id: {} could not be {}ed, because it was not found or it was already {}}", copyId, stateName, stateName);
