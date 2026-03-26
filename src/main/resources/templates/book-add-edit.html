@@ -6,7 +6,7 @@
     <link rel="stylesheet" href="/style.css">
 </head>
 <body>
-    <form th:action="@{/books/save}" method="post"
+    <form th:action="@{/book/save}" method="post"
           th:object="${book}">
         <input type="hidden" th:field="*{id}">
         <div>
@@ -38,6 +38,6 @@
         <button type="submit">Opslaan</button>
     </form>
     <br/>
-    <p><a th:href="@{/books}">Terug naar het overzicht</a></p>
+    <p><a th:href="@{/book/all}">Terug naar het overzicht</a></p>
 </body>
 </html>

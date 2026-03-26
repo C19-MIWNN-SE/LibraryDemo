@@ -11,6 +11,7 @@ import java.util.List;
  * Represents the spiritual writer of the book
  */
 @Entity
+@Table(uniqueConstraints = @UniqueConstraint(columnNames = {"firstName", "lastName"}))
 public class Author {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

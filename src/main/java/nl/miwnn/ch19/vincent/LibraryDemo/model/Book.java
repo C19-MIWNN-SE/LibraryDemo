@@ -18,6 +18,7 @@ public class Book {
 
     @NotBlank(message = "Titel mag niet leeg zijn")
     @Size(max = 200, message = "Titel mag maximaal 200 tekens bevatten")
+    @Column(unique = true)
     private String title;
 
     @ManyToMany
