@@ -50,6 +50,7 @@ public class AuthorController {
             log.warn("Validatiefouten bij opslaan: {}",
                     bindingResult.getErrorCount());
             model.addAttribute("allAuthors", authorService.getAllAuthors());
+            model.addAttribute("newAuthor", author);
             return "author-overview";
         }
 

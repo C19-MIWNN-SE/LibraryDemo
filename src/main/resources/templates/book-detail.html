@@ -19,8 +19,12 @@
 
     <div class="d-flex gap-2 mb-4">
         <a th:href="@{/book/edit/{title}(title=${book.title})}" class="btn btn-primary">Bewerk dit boek</a>
-        <a th:href="@{/book/delete/{title}(title=${book.title})}" class="btn btn-danger">Verwijder dit boek</a>
-        <a th:href="@{/book/add-copy/{title}(title=${book.title})}" class="btn btn-success">Koop exemplaar</a>
+        <form th:action="@{/book/delete/{title}(title=${book.title})}" method="post">
+            <button type="submit" class="btn btn-danger">Verwijder dit boek</button>
+        </form>
+        <form th:action="@{/book/add-copy/{title}(title=${book.title})}" method="post">
+            <button type="submit" class="btn btn-success">Koop exemplaar</button>
+        </form>
     </div>
 
     <h2 class="mb-3">Exemplaren</h2>

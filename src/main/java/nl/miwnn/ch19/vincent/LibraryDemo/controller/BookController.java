@@ -11,6 +11,7 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.List;
 
@@ -32,7 +33,7 @@ public class BookController {
         this.bookService = bookService;
     }
 
-    @GetMapping({ "/", "/all"})
+    @GetMapping("/all")
     public String showBookOverview(@RequestParam(required = false) String query,
                                    Model model) {
 
@@ -98,10 +99,12 @@ public class BookController {
         bookService.saveBook(updatedBook);
         redirectAttributes.addFlashAttribute(
                 "successMessage", "Boek succesvol opgeslagen!");
-        return "redirect:/book/detail/" + updatedBook.getTitle();
+        String redirectUrl = UriComponentsBuilder.fromPath("/book/detail/{title}")
+                .buildAndExpand(updatedBook.getTitle()).toUriString();
+        return "redirect:" + redirectUrl;
     }
 
-    @GetMapping("/delete/{title}")
+    @PostMapping("/delete/{title}")
     public String deleteBook(@PathVariable String title,
                              RedirectAttributes redirectAttributes) {
         log.info("Verwijderen van boek: {}", title);
@@ -111,7 +114,7 @@ public class BookController {
         return "redirect:/book/all";
     }
 
-    @GetMapping("/add-copy/{title}")
+    @PostMapping("/add-copy/{title}")
     public String addCopyToBook(@PathVariable String title,
                              RedirectAttributes redirectAttributes) {
         log.info("Voeg exemplaar toe van boek: {}", title);
@@ -120,7 +123,9 @@ public class BookController {
 
         redirectAttributes.addFlashAttribute(
                 "successMessage", "Exemplaar succesvol toegevoegd!");
-        return "redirect:/book/detail/" + title;
+        String redirectUrl = UriComponentsBuilder.fromPath("/book/detail/{title}")
+                .buildAndExpand(title).toUriString();
+        return "redirect:" + redirectUrl;
     }
 
     @GetMapping({"/{title}", "/detail/{title}"})

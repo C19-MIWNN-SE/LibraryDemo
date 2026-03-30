@@ -11,7 +11,7 @@ import nl.miwnn.ch19.vincent.LibraryDemo.repository.CopyRepository;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.stereotype.Controller;
+import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -22,7 +22,7 @@ import java.util.List;
  * @author Vincent Velthuizen
  * Initialize the database when the application is started empty
  */
-@Controller
+@Component
 public class InitializeController {
     private final AuthorRepository authorRepository;
     private final BookRepository bookRepository;

@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.web.util.UriComponentsBuilder;
 
 /**
  * @author Vincent Velthuizen
@@ -26,28 +27,30 @@ public class CopyController {
     }
 
     @PostMapping("/borrow/{copyId}")
-    public String borrowCopy(@PathVariable("copyId") Long copyId, RedirectAttributes redirectAttributes) {
+    public String borrowCopy(@PathVariable Long copyId, RedirectAttributes redirectAttributes) {
+        Book book = copyService.findById(copyId).getBook();
+        String redirectUrl = UriComponentsBuilder.fromPath("/book/detail/{title}")
+                .buildAndExpand(book.getTitle()).toUriString();
         try {
-            Book book = copyService.borrowCopy(copyId).getBook();
-            redirectAttributes.addFlashAttribute("successMessage",
-                    "Boek succesvol geleend.");
-            return "redirect:/book/detail/" + book.getTitle();
+            copyService.borrowCopy(copyId);
+            redirectAttributes.addFlashAttribute("successMessage", "Boek succesvol geleend.");
         } catch (IllegalStateException illegalStateException) {
             redirectAttributes.addFlashAttribute("errorMessage", illegalStateException.getMessage());
         }
-        return "redirect:/book/all";
+        return "redirect:" + redirectUrl;
     }
 
     @PostMapping("/return/{copyId}")
-    public String returnCopy(@PathVariable("copyId") Long copyId, RedirectAttributes redirectAttributes) {
+    public String returnCopy(@PathVariable Long copyId, RedirectAttributes redirectAttributes) {
+        Book book = copyService.findById(copyId).getBook();
+        String redirectUrl = UriComponentsBuilder.fromPath("/book/detail/{title}")
+                .buildAndExpand(book.getTitle()).toUriString();
         try {
-            Book book = copyService.returnCopy(copyId).getBook();
-            redirectAttributes.addFlashAttribute("successMessage",
-                    "Boek succesvol teruggebracht.");
-            return "redirect:/book/detail/" + book.getTitle();
+            copyService.returnCopy(copyId);
+            redirectAttributes.addFlashAttribute("successMessage", "Boek succesvol teruggebracht.");
         } catch (IllegalStateException illegalStateException) {
             redirectAttributes.addFlashAttribute("errorMessage", illegalStateException.getMessage());
         }
-        return "redirect:/book/all";
+        return "redirect:" + redirectUrl;
     }
 }

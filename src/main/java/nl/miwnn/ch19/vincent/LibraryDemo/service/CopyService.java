@@ -18,12 +18,17 @@ public class CopyService {
         this.copyRepository = copyRepository;
     }
 
-    public Copy borrowCopy(Long copyId) {
-        return changeCopyState(copyId, false);
+    public Copy findById(Long copyId) {
+        return copyRepository.findById(copyId).orElseThrow(
+                () -> new EntityNotFoundException(String.format("Exemplaar met id %d bestaat niet.", copyId)));
     }
 
-    public Copy returnCopy(Long copyId) {
-        return changeCopyState(copyId, true);
+    public void borrowCopy(Long copyId) {
+        changeCopyState(copyId, false);
+    }
+
+    public void returnCopy(Long copyId) {
+        changeCopyState(copyId, true);
     }
 
     private Copy changeCopyState(Long copyId, boolean newState) {
