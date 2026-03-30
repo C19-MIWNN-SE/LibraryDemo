@@ -60,7 +60,6 @@ public class BookController {
         return "book-overview";
     }
 
-
     @GetMapping("/add")
     public String showCreateNewBookForm(Model model) {
         model.addAttribute("book", new Book());

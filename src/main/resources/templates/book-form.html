@@ -6,37 +6,48 @@
 <body>
 <nav th:replace="~{fragments/general :: navbar}"></nav>
 
-<div class="container">
-    <form th:action="@{/book/save}" method="post"
+<div class="container mt-4">
+    <h1 class="mb-3" th:if="${book.id == null}">Voeg nieuw boek toe</h1>
+    <h1 class="mb-3" th:unless="${book.id == null}">Pas <span th:text="${book.title}"></span> aan</h1>
+
+    <form class="col-lg-6"
+          th:action="@{/book/save}"
+          method="post"
           th:object="${book}">
+
         <input type="hidden" th:field="*{id}">
-        <div>
-            <label for="title">Titel</label>
-            <input type="text" id="title" th:field="*{title}"/>
+
+        <div class="mb-3">
+            <label for="title" class="form-label">Titel</label>
+            <input type="text" id="title" class="form-control" th:field="*{title}"/>
             <span th:if="${#fields.hasErrors('title')}"
                   th:errors="*{title}"
                   class="error">
             </span>
         </div>
-        <div>
-            <label for="authors">Auteurs</label>
-            <select id="authors" th:field="*{authors}" multiple>
+
+        <div class="mb-3">
+            <label for="authors" class="form-label">Auteurs</label>
+            <select id="authors" class="form-control" th:field="*{authors}" multiple>
                 <option th:each="author : ${allAuthors}"
                         th:value="${author.id}"
                         th:text="${author.fullName}">
                 </option>
             </select>
         </div>
-        <div>
-            <label for="publicationYear">Publicatiejaar</label>
+
+        <div class="mb-3">
+            <label for="publicationYear" class="form-label">Publicatiejaar</label>
             <input id="publicationYear"
+                   class="form-control"
                    th:field="*{publicationYear}"/>
             <span th:if="${#fields.hasErrors('publicationYear')}"
                   th:errors="*{publicationYear}"
                   class="error">
             </span>
         </div>
-        <button type="submit">Opslaan</button>
+        <button type="submit" class="btn btn-primary">Opslaan</button>
+        <a  onclick="history.back()" class="btn btn-secondary">Annuleren</a>
     </form>
     <br/>
     <p><a th:href="@{/book/all}">Terug naar het overzicht</a></p>

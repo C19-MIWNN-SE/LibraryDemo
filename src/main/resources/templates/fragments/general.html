@@ -28,19 +28,32 @@
             </a>
         </div>
     </div>
+
+    <div class="container mt-3">
+        <div th:if="${successMessage}"
+             class="alert alert-success alert-dismissible fade show"
+             role="alert">
+            <span th:text="${successMessage}">Actie geslaagd.</span>
+            <button type="button" class="btn-close"
+                    data-bs-dismiss="alert"
+                    aria-label="Sluiten"></button>
+        </div>
+        <div th:if="${errorMessage}"
+             class="alert alert-danger alert-dismissible fade show"
+             role="alert">
+            <span th:text="${errorMessage}">Er is een fout opgetreden.</span>
+            <button type="button" class="btn-close"
+                    data-bs-dismiss="alert"
+                    aria-label="Sluiten"></button>
+        </div>
+    </div>
 </nav>
 
-<footer class="footer mt-auto py-3 bg-light"
+<footer class="footer mt-auto py-3 bg-light align-content-center"
         th:fragment="footer">
-    <div class="container">
-        <div th:if="${successMessage}"
-             class="alert alert-success">
-            <span th:text="${successMessage}">Opgeslagen!</span>
-        </div>
 <span class="text-muted">
 &copy;Library Demo - Vincent Velthuizen 2026
 </span>
-    </div>
 </footer>
 
 <div th:fragment="scripts">
