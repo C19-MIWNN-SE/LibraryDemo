@@ -1,5 +1,6 @@
 package nl.miwnn.ch19.vincent.LibraryDemo.service;
 
+import jakarta.persistence.EntityNotFoundException;
 import nl.miwnn.ch19.vincent.LibraryDemo.model.Copy;
 import nl.miwnn.ch19.vincent.LibraryDemo.repository.CopyRepository;
 import org.springframework.stereotype.Service;
@@ -31,7 +32,7 @@ public class CopyService {
         Optional<Copy> optionalCopy = copyRepository.findById(copyId);
 
         if (optionalCopy.isEmpty()) {
-            throw new IllegalArgumentException(String.format("Exemplaar met id %d bestaat niet.", copyId));
+            throw new EntityNotFoundException(String.format("Exemplaar met id %d bestaat niet.", copyId));
         }
 
         Copy copy = optionalCopy.get();

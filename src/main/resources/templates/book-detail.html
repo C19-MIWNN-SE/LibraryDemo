@@ -57,6 +57,16 @@
                 </form>
             </td>
         </tr>
+        <tr>
+
+            <td>
+                <form
+                      th:action="@{/copies/borrow/{id}(id=-1)}"
+                      method="post">
+                    <button type="submit">Lenen</button>
+                </form>
+            </td>
+        </tr>
         </tbody>
     </table>
 </div>
