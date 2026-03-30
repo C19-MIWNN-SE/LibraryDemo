@@ -9,15 +9,14 @@
 <div class="container mt-4">
     <h1 class="mb-3">Boekenoverzicht</h1>
 
-    <form method="get" action="/books">
+    <form method="get" action="/books" class="d-flex justify-content-center mb-3">
         <input id="search" type="text" name="query"
                th:value="${query}"
                aria-labelledby="search-btn"
-               placeholder="Zoek op titel..."/>
-        <button id="search-btn" type="submit" class="btn">Zoeken</button>
+               placeholder="Zoek op titel..."
+               class="form-control me-2 w-auto"/>
+        <button id="search-btn" type="submit" class="btn btn-primary">Zoeken</button>
     </form>
-
-    <br/>
 
     <table class="table table-striped table-hover">
         <thead class="table-dark">

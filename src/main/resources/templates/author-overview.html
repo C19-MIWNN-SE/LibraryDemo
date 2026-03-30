@@ -6,15 +6,15 @@
 <body>
 <nav th:replace="~{fragments/general :: navbar}"></nav>
 
-<div class="container">
-    <h1>Overzicht van alle auteurs</h1>
+<div class="container mt-4">
+    <h1 class="mb-3">Overzicht van alle auteurs</h1>
 
-    <table>
-        <thead>
+    <table class="table table-striped table-hover">
+        <thead class="table-dark">
         <tr>
-            <td>Voornaam</td>
-            <td>Achternaam</td>
-            <td></td>
+            <th>Voornaam</th>
+            <th>Achternaam</th>
+            <th></th>
         </tr>
         </thead>
         <tbody>
@@ -29,13 +29,13 @@
               th:method="post">
             <tr>
                 <td>
-                    <input type="text" th:field="*{firstName}">
+                    <input type="text" th:field="*{firstName}" class="form-control">
                 </td>
                 <td>
-                    <input type="text" th:field="*{lastName}">
+                    <input type="text" th:field="*{lastName}" class="form-control">
                 </td>
                 <td>
-                    <button type="submit">Opslaan</button>
+                    <button type="submit" class="btn btn-primary">Opslaan</button>
                 </td>
             </tr>
         </form>
@@ -48,4 +48,3 @@
 <div th:replace="~{fragments/general :: scripts}"></div>
 </body>
 </html>
-

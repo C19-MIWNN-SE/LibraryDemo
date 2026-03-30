@@ -6,8 +6,8 @@
 <body>
 <nav th:replace="~{fragments/general :: navbar}"></nav>
 
-<div class="container">
-    <h1>404</h1>
+<div class="container mt-4">
+    <h1 class="mb-3">404</h1>
 
     <p>
         Het spijt me maar u heeft iets opgevraagd wat wij niet hebben kunnen vinden.
@@ -18,7 +18,7 @@
 
     <p>
         Mocht u niet weten wat u nu moet doen dan zou ik voorstellen om naar de overzichtspagina te gaan.
-        <a th:href="@{/book/all}">Overzichtspagina van alle boeken</a>.
+        <a th:href="@{/book/all}" class="btn btn-primary">Overzichtspagina van alle boeken</a>.
     </p>
 
 </div>

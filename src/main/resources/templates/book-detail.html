@@ -6,8 +6,8 @@
 <body>
 <nav th:replace="~{fragments/general :: navbar}"></nav>
 
-<div class="container">
-    <h1 th:text="|Details van ${book.title}|"></h1>
+<div class="container mt-4">
+    <h1 class="mb-3" th:text="|Details van ${book.title}|"></h1>
 
     <p>
         Dit boek is geschreven door:
@@ -17,21 +17,15 @@
         en is uitgegeven in <span th:text="${book.publicationYear}"></span>
     </p>
 
-    <ul>
-        <li>
-            <a th:href="@{/book/edit/{title}(title=${book.title})}">Bewerk dit boek</a>
-        </li>
-        <li>
-            <a th:href="@{/book/delete/{title}(title=${book.title})}">Verwijder dit boek</a>
-        </li>
-        <li>
-            <a th:href="@{/book/add-copy/{title}(title=${book.title})}">Koop exemplaar</a>
-        </li>
-    </ul>
+    <div class="d-flex gap-2 mb-4">
+        <a th:href="@{/book/edit/{title}(title=${book.title})}" class="btn btn-primary">Bewerk dit boek</a>
+        <a th:href="@{/book/delete/{title}(title=${book.title})}" class="btn btn-danger">Verwijder dit boek</a>
+        <a th:href="@{/book/add-copy/{title}(title=${book.title})}" class="btn btn-success">Koop exemplaar</a>
+    </div>
 
-    <h2>Exemplaren</h2>
-    <table>
-        <thead>
+    <h2 class="mb-3">Exemplaren</h2>
+    <table class="table table-striped table-hover">
+        <thead class="table-dark">
         <tr>
             <th>Exemplaar</th>
             <th>Status</th>
@@ -48,22 +42,12 @@
                 <form th:if="${copy.available}"
                       th:action="@{/copies/borrow/{id}(id=${copy.id})}"
                       method="post">
-                    <button type="submit">Lenen</button>
+                    <button type="submit" class="btn btn-sm btn-primary">Lenen</button>
                 </form>
                 <form th:unless="${copy.available}"
                       th:action="@{/copies/return/{id}(id=${copy.id})}"
                       method="post">
-                    <button type="submit">Terugbrengen</button>
-                </form>
-            </td>
-        </tr>
-        <tr>
-
-            <td>
-                <form
-                      th:action="@{/copies/borrow/{id}(id=-1)}"
-                      method="post">
-                    <button type="submit">Lenen</button>
+                    <button type="submit" class="btn btn-sm btn-warning">Terugbrengen</button>
                 </form>
             </td>
         </tr>
