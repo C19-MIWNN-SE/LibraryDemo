@@ -5,8 +5,6 @@ import nl.miwnn.ch19.vincent.LibraryDemo.model.Copy;
 import nl.miwnn.ch19.vincent.LibraryDemo.repository.CopyRepository;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
-
 /**
  * @author Vincent Velthuizen
  * Handle all business logic regarding copies
@@ -20,22 +18,17 @@ public class CopyService {
         this.copyRepository = copyRepository;
     }
 
-    public void borrowCopy(Long copyId) {
-        changeCopyState(copyId, false);
+    public Copy borrowCopy(Long copyId) {
+        return changeCopyState(copyId, false);
     }
 
-    public void returnCopy(Long copyId) {
-        changeCopyState(copyId, true);
+    public Copy returnCopy(Long copyId) {
+        return changeCopyState(copyId, true);
     }
 
-    private void changeCopyState(Long copyId, boolean newState) {
-        Optional<Copy> optionalCopy = copyRepository.findById(copyId);
-
-        if (optionalCopy.isEmpty()) {
-            throw new EntityNotFoundException(String.format("Exemplaar met id %d bestaat niet.", copyId));
-        }
-
-        Copy copy = optionalCopy.get();
+    private Copy changeCopyState(Long copyId, boolean newState) {
+        Copy copy = copyRepository.findById(copyId).orElseThrow(
+                () -> new EntityNotFoundException(String.format("Exemplaar met id %d bestaat niet.", copyId)));
 
         if (copy.getAvailable() == newState) {
             throw new IllegalStateException(String.format("Exemplaar is %s uitgeleend.", newState ? "al" : "niet"));
@@ -43,5 +36,6 @@ public class CopyService {
 
         copy.setAvailable(newState);
         copyRepository.save(copy);
+        return copy;
     }
 }
