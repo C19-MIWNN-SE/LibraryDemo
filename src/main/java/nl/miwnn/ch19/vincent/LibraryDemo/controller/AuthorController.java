@@ -2,8 +2,7 @@ package nl.miwnn.ch19.vincent.LibraryDemo.controller;
 
 import jakarta.validation.Valid;
 import nl.miwnn.ch19.vincent.LibraryDemo.model.Author;
-import nl.miwnn.ch19.vincent.LibraryDemo.model.Copy;
-import nl.miwnn.ch19.vincent.LibraryDemo.repository.AuthorRepository;
+import nl.miwnn.ch19.vincent.LibraryDemo.service.AuthorService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
@@ -24,16 +23,16 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 public class AuthorController {
 
     private static final Logger log = LoggerFactory.getLogger(AuthorController.class);
-    private final AuthorRepository authorRepository;
+    private final AuthorService authorService;
 
-    public AuthorController(AuthorRepository authorRepository) {
-        this.authorRepository = authorRepository;
+    public AuthorController(AuthorService authorService) {
+        this.authorService = authorService;
     }
 
 
     @GetMapping("/all")
     public String showAuthorOverviewWithForm(Model model) {
-        model.addAttribute("allAuthors", authorRepository.findAll());
+        model.addAttribute("allAuthors", authorService.getAllAuthors());
         model.addAttribute("newAuthor", new Author());
         model.addAttribute("activePage", "authors");
 
@@ -43,17 +42,19 @@ public class AuthorController {
     @PostMapping("/save")
     public String saveOrUpdateAuthor(@Valid @ModelAttribute Author author,
                                      BindingResult bindingResult,
+                                     Model model,
                                      RedirectAttributes redirectAttributes) {
         log.info("Auteur opslaan: {}", author.getFullName());
 
         if (bindingResult.hasErrors()) {
             log.warn("Validatiefouten bij opslaan: {}",
                     bindingResult.getErrorCount());
+            model.addAttribute("allAuthors", authorService.getAllAuthors());
             return "author-overview";
         }
 
-        authorRepository.save(author);
-        log.info("Nieuw boek toegevoegd: {}", author.getFullName());
+        authorService.saveAuthor(author);
+        log.info("Nieuwe auteur toegevoegd: {}", author.getFullName());
         redirectAttributes.addFlashAttribute(
                 "successMessage", "Auteur succesvol opgeslagen!");
         return "redirect:/author/all";
