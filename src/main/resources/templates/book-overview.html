@@ -9,7 +9,7 @@
 <div class="container mt-4">
     <h1 class="mb-3">Boekenoverzicht</h1>
 
-    <form method="get" action="/books" class="d-flex justify-content-center mb-3">
+    <form method="get" action="/book/all" class="d-flex justify-content-center mb-3">
         <input id="search" type="text" name="query"
                th:value="${query}"
                aria-labelledby="search-btn"
@@ -22,6 +22,7 @@
         <thead class="table-dark">
             <tr>
                 <th>Titel</th>
+                <th>Genre</th>
                 <th>Auteur</th>
                 <th>Jaar</th>
             </tr>
@@ -33,6 +34,9 @@
                        th:text="${book.title}">
                         Titel
                     </a>
+                </td>
+                <td>
+                    <span class="badge" th:text="${book.genre}">Genre</span>
                 </td>
                 <td>
                     <span th:each="author, iterStat : ${book.authors}">

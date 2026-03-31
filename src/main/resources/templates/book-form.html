@@ -46,6 +46,30 @@
                   class="error">
             </span>
         </div>
+
+        <div class="mb-3">
+            <label for="genre">Genre</label>
+            <input type="text" id="genre" class="form-control"
+                   th:field="*{genre}" required>
+        </div>
+
+        <div class="mb-3">
+            <label for="coverImageUrl">URL omslagafbeelding</label>
+            <input type="url" id="coverImageUrl"
+                   class="form-control"
+                   th:field="*{coverImageUrl}"
+                   placeholder="https://...">
+        </div>
+        <div class="mb-3">
+            <label for="description">Beschrijving</label>
+            <textarea id="description"
+                      class="form-control"
+                      th:field="*{description}"
+                      rows="5"
+                      placeholder="Optionele beschrijving van het boek">
+            </textarea>
+        </div>
+
         <button type="submit" class="btn btn-primary">Opslaan</button>
         <a  onclick="history.back()" class="btn btn-secondary">Annuleren</a>
     </form>

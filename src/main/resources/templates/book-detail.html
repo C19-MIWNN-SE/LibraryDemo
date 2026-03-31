@@ -10,11 +10,28 @@
     <h1 class="mb-3" th:text="|Details van ${book.title}|"></h1>
 
     <p>
-        Dit boek is geschreven door:
+
+    <p>        Dit boek is geschreven door:
         <span th:each="author, iterStat : ${book.authors}">
             <span th:text="${author.fullName}"></span><span th:if="!${iterStat.last}">, </span>
         </span>
         en is uitgegeven in <span th:text="${book.publicationYear}"></span>
+    </p>
+
+    <p th:if="${book.coverImageUrl != null
+                and !book.coverImageUrl.isEmpty()}">
+        <img th:src="${book.coverImageUrl}" class="img-fluid img-thumbnail"
+             th:alt="${book.title}">
+
+    <p th:if="${book.description != null
+                and !book.description.isEmpty()}">
+        <span th:text="${book.description}"></span>
+    </p>
+
+    <p th:unless="${book.description != null
+                    and !book.description.isEmpty()}"
+       class="placeholder-no-data">
+        Geen beschrijving beschikbaar.
     </p>
 
     <div class="d-flex gap-2 mb-4">
