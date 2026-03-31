@@ -29,6 +29,13 @@ public class Book {
     @Max(value = 2100, message = "Publicatiejaar mag maximaal 2100 zijn")
     private Integer publicationYear;
 
+    private String genre;
+    @Column(nullable = true, length = 2000)
+    private String description;
+
+    @Column(nullable = true)
+    private String coverImageUrl;
+
     @OneToMany(mappedBy = "book", cascade = CascadeType.ALL)
     private List<Copy> copies = new ArrayList<>();
 
@@ -53,6 +60,30 @@ public class Book {
 
     public void setTitle(String title) {
         this.title = title;
+    }
+
+    public String getCoverImageUrl() {
+        return coverImageUrl;
+    }
+
+    public void setCoverImageUrl(String coverImageUrl) {
+        this.coverImageUrl = coverImageUrl;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public String getGenre() {
+        return genre;
+    }
+
+    public void setGenre(String genre) {
+        this.genre = genre;
     }
 
     public List<Author> getAuthors() {
