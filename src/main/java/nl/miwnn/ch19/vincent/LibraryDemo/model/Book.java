@@ -109,4 +109,12 @@ public class Book {
     public void setCopies(List<Copy> copies) {
         this.copies = copies;
     }
+
+    public int getNumberOfCopies() {
+        return copies.size();
+    }
+
+    public long getAvailableNumberOfCopies() {
+        return copies.stream().filter(Copy::getAvailable).count();
+    }
 }

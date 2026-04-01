@@ -1,75 +1,73 @@
 <html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
       th:replace="~{fragments/layout :: layout(~{::title}, ~{::#content})}">
-<head><title th:text="|Details van ${book.title}|">Title</title></head>
+<head><title th:text="${book.title}">Boek</title></head>
 <body>
 <div id="content">
-    <h1 class="mb-3" th:text="|Details van ${book.title}|"></h1>
+    <div class="row flex-lg-row align-items-center g-5 py-3">
+        <div class="col-6 col-sm-4 col-lg-3">
+            <img th:if="${book.coverImageUrl != null and !book.coverImageUrl.isEmpty()}"
+                 th:src="${book.coverImageUrl}"
+                 th:alt="|Omslag van ${book.title}|"
+                 class="img-fluid rounded shadow">
+        </div>
+        <div class="col-lg-9">
+            <h1 class="display-5 fw-bold lh-1 mb-3" th:text="${book.title}"></h1>
+            <p class="lead" th:text="${book.description}"></p>
+            <p th:unless="${book.description != null and !book.description.isEmpty()}"
+               class="placeholder-no-data">Geen beschrijving beschikbaar.</p>
 
-    <p>
-
-    <p>        Dit boek is geschreven door:
-        <span th:each="author, iterStat : ${book.authors}">
-            <span th:text="${author.fullName}"></span><span th:if="!${iterStat.last}">, </span>
-        </span>
-        en is uitgegeven in <span th:text="${book.publicationYear}"></span>
-    </p>
-
-    <p th:if="${book.coverImageUrl != null
-                and !book.coverImageUrl.isEmpty()}">
-        <img th:src="${book.coverImageUrl}" class="img-fluid img-thumbnail"
-             th:alt="${book.title}">
-
-    <p th:if="${book.description != null
-                and !book.description.isEmpty()}">
-        <span th:text="${book.description}"></span>
-    </p>
-
-    <p th:unless="${book.description != null
-                    and !book.description.isEmpty()}"
-       class="placeholder-no-data">
-        Geen beschrijving beschikbaar.
-    </p>
-
-    <div class="d-flex gap-2 mb-4">
-        <a th:href="@{/book/edit/{title}(title=${book.title})}" class="btn btn-primary">Bewerk dit boek</a>
-        <form th:action="@{/book/delete/{title}(title=${book.title})}" method="post">
-            <button type="submit" class="btn btn-danger">Verwijder dit boek</button>
-        </form>
-        <form th:action="@{/book/add-copy/{title}(title=${book.title})}" method="post">
-            <button type="submit" class="btn btn-success">Koop exemplaar</button>
-        </form>
+            <div class="d-flex gap-2 mb-3" sec:authorize="hasRole('ADMIN')">
+                <a th:href="@{/book/edit/{title}(title=${book.title})}" class="btn btn-primary">
+                    <i class="bi bi-pencil"></i> Bewerken
+                </a>
+                <form th:action="@{/book/delete/{title}(title=${book.title})}" method="post">
+                    <button type="submit" class="btn btn-danger">
+                        <i class="bi bi-trash"></i> Verwijderen
+                    </button>
+                </form>
+                <form th:action="@{/book/add-copy/{title}(title=${book.title})}" method="post">
+                    <button type="submit" class="btn btn-success">
+                        <i class="bi bi-plus"></i> Exemplaar kopen
+                    </button>
+                </form>
+            </div>
+        </div>
     </div>
 
-    <h2 class="mb-3">Exemplaren</h2>
-    <table class="table table-striped table-hover">
-        <thead class="table-dark">
-        <tr>
-            <th>Exemplaar</th>
-            <th>Status</th>
-            <th></th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr th:each="copy : ${book.copies}">
-            <td th:text="${copy.id}">1</td>
-            <td th:text="${copy.available} ? 'Beschikbaar' : 'Uitgeleend'">
-                Status
-            </td>
-            <td>
-                <form th:if="${copy.available}"
-                      th:action="@{/copies/borrow/{id}(id=${copy.id})}"
-                      method="post">
-                    <button type="submit" class="btn btn-sm btn-primary">Lenen</button>
-                </form>
-                <form th:unless="${copy.available}"
-                      th:action="@{/copies/return/{id}(id=${copy.id})}"
-                      method="post">
-                    <button type="submit" class="btn btn-sm btn-warning">Terugbrengen</button>
-                </form>
-            </td>
-        </tr>
-        </tbody>
-    </table>
+    <div class="row mt-4">
+        <div class="col-9">
+            <h2 class="mb-3">Auteurs</h2>
+            <div th:replace="~{fragments/author :: authorCards(${book.authors})}"></div>
+        </div>
+        <div class="col-3">
+            <h2 class="mb-3">Exemplaren</h2>
+            <p>
+                <span th:text="${book.availableNumberOfCopies}"></span> beschikbaar
+                van <span th:text="${book.numberOfCopies}"></span> totaal.
+            </p>
+            <ul class="list-unstyled" sec:authorize="hasAnyRole('USER', 'ADMIN')">
+                <li th:each="copy : ${book.copies}" class="mt-2">
+                    <form th:if="${copy.available}"
+                          th:action="@{/copies/borrow/{id}(id=${copy.id})}"
+                          method="post">
+                        <button type="submit" class="btn btn-outline-primary w-100"
+                                th:disabled="${borrowDisabled}">
+                            Lenen (<span th:text="${copy.id}"></span>)
+                        </button>
+                    </form>
+                    <form th:unless="${copy.available}"
+                          th:action="@{/copies/return/{id}(id=${copy.id})}"
+                          method="post">
+                        <button type="submit" class="btn btn-outline-secondary w-100"
+                                th:disabled="${borrowDisabled}">
+                            Terugbrengen (<span th:text="${copy.id}"></span>)
+                        </button>
+                    </form>
+                </li>
+            </ul>
+        </div>
+    </div>
 </div>
 </body>
 </html>

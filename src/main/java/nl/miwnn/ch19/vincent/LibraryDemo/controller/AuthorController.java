@@ -13,6 +13,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.IOException;
 
@@ -34,12 +35,28 @@ public class AuthorController {
     }
 
     @GetMapping("/all")
-    public String showAuthorOverviewWithForm(Model model) {
+    public String showAuthorOverview(Model model) {
         model.addAttribute("allAuthors", authorService.getAllAuthors());
-        model.addAttribute("newAuthor", new Author());
         model.addAttribute("activePage", "authors");
-
         return "author-overview";
+    }
+
+    @GetMapping("/detail/{id}")
+    public String showAuthorDetail(@PathVariable Long id, Model model) {
+        model.addAttribute("author", authorService.findById(id));
+        return "author-detail";
+    }
+
+    @GetMapping("/add")
+    public String showAddAuthorForm(Model model) {
+        model.addAttribute("author", new Author());
+        return "author-form";
+    }
+
+    @GetMapping("/edit/{id}")
+    public String showEditAuthorForm(@PathVariable Long id, Model model) {
+        model.addAttribute("author", authorService.findById(id));
+        return "author-form";
     }
 
     @PostMapping("/save")
@@ -51,11 +68,8 @@ public class AuthorController {
         log.info("Auteur opslaan: {}", author.getFullName());
 
         if (bindingResult.hasErrors()) {
-            log.warn("Validatiefouten bij opslaan: {}",
-                    bindingResult.getErrorCount());
-            model.addAttribute("allAuthors", authorService.getAllAuthors());
-            model.addAttribute("newAuthor", author);
-            return "author-overview";
+            log.warn("Validatiefouten bij opslaan: {}", bindingResult.getErrorCount());
+            return "author-form";
         }
 
         if (!imageFile.isEmpty()) {
@@ -67,11 +81,14 @@ public class AuthorController {
         }
 
         authorService.saveAuthor(author);
-        log.info("Nieuwe auteur toegevoegd: {}", author.getFullName());
-        redirectAttributes.addFlashAttribute(
-                "successMessage", "Auteur succesvol opgeslagen!");
+        log.info("Auteur opgeslagen: {}", author.getFullName());
+        redirectAttributes.addFlashAttribute("successMessage", "Auteur succesvol opgeslagen!");
+
+        if (author.getId() != null) {
+            String redirectUrl = UriComponentsBuilder.fromPath("/author/detail/{id}")
+                    .buildAndExpand(author.getId()).toUriString();
+            return "redirect:" + redirectUrl;
+        }
         return "redirect:/author/all";
     }
-
-
 }

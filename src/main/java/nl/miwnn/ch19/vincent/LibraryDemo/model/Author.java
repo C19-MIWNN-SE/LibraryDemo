@@ -68,4 +68,12 @@ public class Author {
     public void setImage(Image image) {
         this.image = image;
     }
+
+    public List<Book> getBooks() {
+        return books;
+    }
+
+    public void setBooks(List<Book> books) {
+        this.books = books;
+    }
 }

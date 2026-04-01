@@ -33,11 +33,26 @@ public class LibraryDemoSecurityConfiguration {
                                 "/book/all",
                                 "/book/detail/**",
                                 "/author/all",
+                                "/author/detail/**",
                                 "/images/**",
                                 "/css/**",
                                 "/webjars/**"
                         ).permitAll()
-                        .requestMatchers("/book/edit/**").hasRole("ADMIN")
+                        .requestMatchers(
+                                "/copies/borrow/**",
+                                "/copies/return/**"
+                        ).hasAnyRole("USER", "ADMIN")
+                        .requestMatchers(
+                                "/book/add",
+                                "/book/edit/**",
+                                "/book/save",
+                                "/book/delete/**",
+                                "/book/add-copy/**",
+                                "/author/add",
+                                "/author/edit/**",
+                                "/author/save",
+                                "/user/**"
+                        ).hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form

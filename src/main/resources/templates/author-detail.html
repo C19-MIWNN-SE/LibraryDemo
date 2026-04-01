@@ -1,0 +1,27 @@
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/layout :: layout(~{::title}, ~{::#content})}">
+<head><title th:text="${author.fullName}">Auteur</title></head>
+<body>
+<div id="content">
+    <div class="row flex-lg-row-reverse align-items-center g-5 py-3">
+        <div class="col-8 col-sm-6 col-lg-3 text-center">
+            <img th:if="${author.image != null}"
+                 th:src="@{/images/{id}(id=${author.image.id})}"
+                 th:alt="|Foto van ${author.fullName}|"
+                 class="img-fluid cirkel w-75">
+        </div>
+        <div class="col-lg-9">
+            <h1 class="display-5 fw-bold lh-1 mb-3" th:text="${author.fullName}"></h1>
+            <div class="d-flex gap-2">
+                <a th:href="@{/author/edit/{id}(id=${author.id})}" class="btn btn-primary">
+                    <i class="bi bi-pencil"></i> Bewerken
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <h2 class="mt-4 mb-3">Boeken</h2>
+    <div th:replace="~{fragments/book :: bookCards(${author.books})}"></div>
+</div>
+</body>
+</html>

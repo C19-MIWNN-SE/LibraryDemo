@@ -8,10 +8,12 @@
 <div th:fragment="bookCardsNew(books)" class="row row-cols-6 g-4">
     <div th:each="book : ${books}" th:insert="~{fragments/book :: bookCard(${book})}"></div>
 
-    <div class="col h-100">
-        <div class="card h-100">
-            <div class="card-body align-content-center text-center">
-                <a th:href="@{/book/add}">Add a new book</a>
+    <div>
+        <div class="col h-100">
+            <div class="card h-100">
+                <div class="card-body align-content-center text-center">
+                    <a th:href="@{/book/add}">Add a new book</a>
+                </div>
             </div>
         </div>
     </div>
@@ -31,11 +33,13 @@
         </div>
         <ul class="list-group list-group-flush">
             <li class="list-group-item" th:each="author : ${book.authors}">
-                <a th:href="@{/author/details/{name}(name = ${author.fullName})}" th:text="${author.fullName}"></a>
+                <a th:href="@{/author/detail/{id}(id=${author.id})}" th:text="${author.fullName}"></a>
             </li>
         </ul>
         <div class="card-footer">
-            <h6 class="card-subtitle text-center"><span th:text="${book.copies.size()}"></span> available out of <span th:text="${book.copies.size()}"></span> copies</h6>
+            <h6 class="card-subtitle text-center">
+                <span th:text="${book.availableNumberOfCopies}"></span> beschikbaar van <span th:text="${book.numberOfCopies}"></span>
+            </h6>
         </div>
     </div>
 </div>

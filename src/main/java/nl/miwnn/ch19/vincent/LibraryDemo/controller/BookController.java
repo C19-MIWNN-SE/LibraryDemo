@@ -129,10 +129,16 @@ public class BookController {
     }
 
     @GetMapping({"/detail/{title}"})
-    public String showBookDetail(
-            @PathVariable String title, Model model) {
+    public String showBookDetail(@PathVariable String title, Model model,
+                                 org.springframework.security.core.Authentication authentication) {
         Book book = bookService.findByTitle(title);
         model.addAttribute("book", book);
+
+        boolean borrowDisabled = authentication != null
+                && authentication.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))
+                && authentication.getAuthorities().stream().noneMatch(a -> a.getAuthority().equals("ROLE_USER"));
+        model.addAttribute("borrowDisabled", borrowDisabled);
+
         return "book-detail";
     }
 }

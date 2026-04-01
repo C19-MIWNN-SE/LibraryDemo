@@ -1,54 +1,10 @@
 <html xmlns:th="http://www.thymeleaf.org"
       th:replace="~{fragments/layout :: layout(~{::title}, ~{::#content})}">
-<head><title>Overzicht van alle auteurs</title></head>
+<head><title>Auteurs</title></head>
 <body>
 <div id="content">
-    <h1 class="mb-3">Overzicht van alle auteurs</h1>
-
-    <table class="table table-striped table-hover">
-        <thead class="table-dark">
-        <tr>
-            <th>Voornaam</th>
-            <th>Achternaam</th>
-            <th>Profielfoto</th>
-            <th></th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr th:each="author : ${allAuthors}">
-            <td th:text="${author.firstName}"></td>
-            <td th:text="${author.lastName}"></td>
-            <td><img th:if="${author.image != null}"
-                     th:src="@{/images/{id}(id=${author.image.id})}"
-                     th:alt="${author.firstName + ' ' + author.lastName}"
-                     style="width: 80px; height: 80px; object-fit: cover;">
-            </td>
-            <td></td>
-        </tr>
-
-        <form th:action="@{/author/save}"
-              th:object="${newAuthor}"
-              th:method="post"
-              enctype="multipart/form-data">
-            <tr>
-                <td>
-                    <input type="text" th:field="*{firstName}" class="form-control">
-                </td>
-                <td>
-                    <input type="text" th:field="*{lastName}" class="form-control">
-                </td>
-                <td>
-                    <input type="file" id="imageFile"
-                        name="imageFile"
-                        accept="image/*">
-                </td>
-                <td>
-                    <button type="submit" class="btn btn-primary">Opslaan</button>
-                </td>
-            </tr>
-        </form>
-        </tbody>
-    </table>
+    <h1 class="mb-4">Auteurs</h1>
+    <div th:replace="~{fragments/author :: authorCardsNew(${allAuthors})}"></div>
 </div>
 </body>
 </html>

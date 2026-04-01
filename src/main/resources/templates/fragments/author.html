@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="nl" xmlns:th="http://www.thymeleaf.org">
+
+<div th:fragment="authorCards(authors)" class="row row-cols-2 row-cols-md-5 g-4">
+    <div th:each="author : ${authors}" th:insert="~{fragments/author :: authorCard(${author})}"></div>
+</div>
+
+<div th:fragment="authorCardsNew(authors)" class="row row-cols-2 row-cols-md-5 g-4">
+    <div th:each="author : ${authors}" th:insert="~{fragments/author :: authorCard(${author})}"></div>
+    <div>
+        <div class="col h-100">
+            <div class="card h-100">
+                <div class="card-body align-content-center text-center">
+                    <a th:href="@{/author/add}" class="btn btn-outline-secondary btn-lg px-4 fw-bold">
+                        <i class="bi bi-plus-square"></i> Auteur toevoegen
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div th:fragment="authorCard(author)" class="col h-100">
+    <!--/*@thymesVar id="author" type="nl.miwnn.ch19.vincent.LibraryDemo.model.Author"*/-->
+    <div class="card h-100">
+        <div class="card-body text-center bg-body-secondary">
+            <a th:href="@{/author/detail/{id}(id=${author.id})}">
+                <img th:if="${author.image != null}"
+                     th:src="@{/images/{id}(id=${author.image.id})}"
+                     th:alt="|Foto van ${author.fullName}|"
+                     class="w-100 cirkel mb-2">
+                <h5 class="card-title" th:text="${author.fullName}"></h5>
+            </a>
+        </div>
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item" th:each="book, iterStat : ${author.books}" th:if="${iterStat.index < 3}">
+                <a th:href="@{/book/detail/{title}(title=${book.title})}" th:text="${book.title}"></a>
+            </li>
+        </ul>
+        <div class="card-footer">
+            <small class="text-muted text-center d-block" th:text="|${author.books.size()} boeken totaal|"></small>
+        </div>
+    </div>
+</div>
+
+</html>
