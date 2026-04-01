@@ -1,10 +1,11 @@
 package nl.miwnn.ch19.vincent.LibraryDemo.controller;
 
-import com.opencsv.bean.CsvToBean;
-import com.opencsv.bean.CsvToBeanBuilder;
+import com.opencsv.CSVReader;
+import com.opencsv.exceptions.CsvException;
 import nl.miwnn.ch19.vincent.LibraryDemo.model.Author;
 import nl.miwnn.ch19.vincent.LibraryDemo.model.Book;
 import nl.miwnn.ch19.vincent.LibraryDemo.model.Copy;
+import nl.miwnn.ch19.vincent.LibraryDemo.model.Image;
 import nl.miwnn.ch19.vincent.LibraryDemo.model.LibraryUser;
 import nl.miwnn.ch19.vincent.LibraryDemo.repository.AuthorRepository;
 import nl.miwnn.ch19.vincent.LibraryDemo.repository.BookRepository;
@@ -20,8 +21,8 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.Reader;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -34,10 +35,11 @@ public class InitializeController {
     private final BookRepository bookRepository;
     private final CopyRepository copyRepository;
     private final UserRepository userRepository;
-
     private final PasswordEncoder passwordEncoder;
 
     private final Logger log = LoggerFactory.getLogger(InitializeController.class);
+
+    private final Map<String, Author> authorCache = new HashMap<>();
 
     public InitializeController(AuthorRepository authorRepository,
                                 BookRepository bookRepository,
@@ -75,44 +77,81 @@ public class InitializeController {
     }
 
     private void seedAuthors() {
-        try {
-            ClassPathResource resource = new ClassPathResource("seedData/authors.csv");
-            Reader reader = new InputStreamReader(resource.getInputStream());
+        try (CSVReader reader = new CSVReader(new InputStreamReader(
+                new ClassPathResource("seedData/authors.csv").getInputStream()))) {
+            reader.skip(1); // skip header
+            for (String[] line : reader.readAll()) {
+                String fullName = line[0].trim();
+                String imageUrl = line[1].trim();
 
-            CsvToBean<Author> csvToBean = new CsvToBeanBuilder<Author>(reader)
-                    .withType(Author.class)
-                    .withIgnoreLeadingWhiteSpace(true)
-                    .build();
+                int lastSpace = fullName.lastIndexOf(' ');
+                String firstName = fullName.substring(0, lastSpace);
+                String lastName = fullName.substring(lastSpace + 1);
 
-            authorRepository.saveAll(csvToBean.parse());
-        } catch (IOException ioException) {
-            throw new RuntimeException(ioException);
+                Author author = new Author();
+                author.setFirstName(firstName);
+                author.setLastName(lastName);
+                author.setImage(loadImage(imageUrl));
+                authorRepository.save(author);
+                authorCache.put(fullName, author);
+            }
+        } catch (IOException | CsvException e) {
+            throw new RuntimeException("Kon authors.csv niet inlezen", e);
         }
     }
 
+    private Image loadImage(String imageUrl) throws IOException {
+        String filename = "seedData" + imageUrl;
+        ClassPathResource resource = new ClassPathResource(filename);
+
+        String contentType = imageUrl.toLowerCase().endsWith(".png") ? "image/png" : "image/jpeg";
+
+        Image image = new Image();
+        image.setData(resource.getInputStream().readAllBytes());
+        image.setContentType(contentType);
+        return image;
+    }
+
     private void seedBooks() {
-        try {
-            ClassPathResource resource =
-                    new ClassPathResource("seedData/books.csv");
-            Reader reader = new InputStreamReader(
-                    resource.getInputStream());
-            CsvToBean<Book> csvToBean =
-                    new CsvToBeanBuilder<Book>(reader)
-                            .withType(Book.class)
-                            .withIgnoreLeadingWhiteSpace(true)
-                            .build();
-            List<Book> books = csvToBean.parse();
-            List<Author> authors = authorRepository.findAll();
-            for (int i = 0; i < books.size(); i++) {
-                Book book = books.get(i);
-                book.getAuthors().add(authors.get(i % authors.size()));
+        try (CSVReader reader = new CSVReader(new InputStreamReader(
+                new ClassPathResource("seedData/books.csv").getInputStream()))) {
+            reader.skip(1); // skip header
+            for (String[] line : reader.readAll()) {
+                String title = line[0].trim();
+                String description = line[1].trim();
+                String genre = line[2].trim();
+                String coverImageUrl = line[3].trim();
+                int totalCopies = Integer.parseInt(line[4].trim());
+                String publicationYearRaw = line[5].trim();
+                String authorsField = line[6].trim();
+
+                Book book = new Book();
+                book.setTitle(title);
+                book.setDescription(description);
+                book.setGenre(genre);
+                book.setCoverImageUrl(coverImageUrl);
+
+                if (!publicationYearRaw.isEmpty()) {
+                    book.setPublicationYear(Integer.parseInt(publicationYearRaw));
+                }
+
+                for (String authorName : authorsField.split(", ")) {
+                    Author author = authorCache.get(authorName.trim());
+                    if (author != null) {
+                        book.getAuthors().add(author);
+                    } else {
+                        log.warn("Auteur '{}' niet gevonden voor boek '{}'", authorName.trim(), title);
+                    }
+                }
+
                 bookRepository.save(book);
-                copyRepository.save(new Copy(book));
-                copyRepository.save(new Copy(book));
+
+                for (int i = 0; i < totalCopies; i++) {
+                    copyRepository.save(new Copy(book));
+                }
             }
-        } catch (IOException e) {
-            throw new RuntimeException(
-                    "Kon books.csv niet inlezen", e);
+        } catch (IOException | CsvException e) {
+            throw new RuntimeException("Kon books.csv niet inlezen", e);
         }
     }
 }

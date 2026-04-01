@@ -1,11 +1,17 @@
-title,publicationYear
-The Lord of the Rings,1954
-Dune,1965
-1984,1949
-Brave New World,1932
-The Hitchhiker's Guide to the Galaxy,1979
-Foundation,1951
-To Kill a Mockingbird,1960
-Fahrenheit 451,1953
-The Silmarillion,1977
-Children of Dune,1976
+title,description,genre,imageUrl,total_copies,publicationYear,authors
+The Hobbit,"The Hobbit, or There and Back Again is a children's fantasy novel by the English author J. R. R. Tolkien...",SFF,https://images.thenile.io/r1000/9780261103283.jpg,3,1937,J.R.R. Tolkien
+The Lord of the Rings,The Lord of the Rings is an epic high fantasy novel by the English author and scholar J. R. R. Tolkien...,SFF,https://www.bibdsl.co.uk/imagegallery/bookdata/cd427/9780261103252.JPG,4,1954,J.R.R. Tolkien
+The Final Empire,"Mistborn: The Final Empire, also known simply as Mistborn or The Final Empire...",SFF,https://upload.wikimedia.org/wikipedia/en/4/44/Mistborn-cover.jpg,2,2006,Brandon Sanderson
+The Well of Ascension,"Mistborn: The Well of Ascension is a fantasy novel written by American author Brandon Sanderson. It was published on August 21, 2007, by Tor Books and is the second novel in the Mistborn trilogy.",SFF,https://upload.wikimedia.org/wikipedia/en/7/7b/Mistborn-_The_Well_of_Ascension_by_Brandon_Sanderson.jpg,2,2007,Brandon Sanderson
+The Hero of Ages,"Mistborn: The Hero of Ages is an epic fantasy novel written by American author Brandon Sanderson. It was published on October 14, 2008, by Tor Books and is the third and final novel in the Mistborn trilogy.",SFF,https://upload.wikimedia.org/wikipedia/en/b/bb/The_Hero_of_Ages_-_Book_Three_of_Mistborn.png,2,2008,Brandon Sanderson
+The Name of the Wind,"The Name of the Wind is a heroic fantasy novel written by American author Patrick Rothfuss. It is the first book in the ongoing fantasy trilogy The Kingkiller Chronicle.",SFF,https://upload.wikimedia.org/wikipedia/en/5/56/TheNameoftheWind_cover.jpg,3,2007,Patrick Rothfuss
+The Wise Man's Fear,"The Wise Man's Fear is a fantasy novel written by American author Patrick Rothfuss and the second volume in The Kingkiller Chronicle.",SFF,https://upload.wikimedia.org/wikipedia/en/7/7b/The_Wise_Man%27s_Fear.jpg,2,2011,Patrick Rothfuss
+The Doors of Stone,"Book 3 in The Kingkiller Chronicle series. It has been more than a decade since the last book in the series hit store shelves.",SFF,https://images.thedirect.com/media/photos/doors_of_stone.jpg,0,,Patrick Rothfuss
+The Final Name of the Rings,A fantasy book written by three famous fantasy authors,SFF,https://thebookcoverdesigner.com/wp-content/uploads/2015/02/fantasy_cover.bmp,5,2026,"Brandon Sanderson, Patrick Rothfuss"
+Paper Towns,"Paper Towns is a novel written by John Green, published on October 16, 2008, by Dutton Books.",YA,https://upload.wikimedia.org/wikipedia/en/0/08/Paper_Towns_%28Dutton_Books%29_primary_cover.jpg,2,2008,John Green
+Looking for Alaska,"Looking for Alaska is a 2005 young adult novel by American author John Green.",YA,https://upload.wikimedia.org/wikipedia/en/3/3e/Looking_for_Alaska_original_cover.jpg,2,2005,John Green
+The Fault in Our Stars,"The Fault in Our Stars is a novel by John Green. It was published on January 10, 2012.",YA,https://upload.wikimedia.org/wikipedia/en/a/a9/The_Fault_in_Our_Stars.jpg,2,2012,John Green
+Turtles All the Way Down,"Turtles All the Way Down is a young adult drama novel written by American author John Green published on October 10, 2017.",YA,https://upload.wikimedia.org/wikipedia/en/1/17/John_Green_Turtles_All_The_Way_Down_Book_Cover.jpg,2,2017,John Green
+Bobbi naar de bruiloft,"Bobbi gaat iets heel speciaals doen: naar een echte bruiloft. Dat is spannend en vooral heel erg leuk.",Child,https://www.bobbi.nl/wp-content/uploads/2025/05/Bobbi-bruiloft-CVRvoorPR-rgb-1400px-768x850.jpg,2,2025,Monica Maas
+Bobbi kleedt zich aan,"Bobbi mag voor het eerst zijn eigen kleren uitzoeken. Wat zal hij kiezen?",Child,https://www.bobbi.nl/wp-content/uploads/2024/01/Bobbi-kleedtzichaan-CVRvoorPR-rgb-1400px-768x850.jpg,2,2024,Monica Maas
+Bobbi is boos,"Bobbi heeft er helemaal geen zin in vandaag. Alles gaat mis en hij krijgt niet wat hij wil.",Child,https://www.bobbi.nl/wp-content/uploads/2025/01/Bobbi-boos-CVRvoorPR-rgb-1400px-768x850.jpg,2,2025,Monica Maas

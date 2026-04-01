@@ -1,9 +1,6 @@
-firstName,lastName
-J.R.R.,Tolkien
-Frank,Herbert
-George,Orwell
-Aldous,Huxley
-Douglas,Adams
-Isaac,Asimov
-Harper,Lee
-Ray,Bradbury
+name,imageUrl
+Brandon Sanderson,/image/Brandon_Sanderson.jpg
+J.R.R. Tolkien,/image/J.R.R._Tolkien.jpg
+Patrick Rothfuss,/image/Patrick_Rothfuss.jpg
+Monica Maas,/image/Monica_Maas.jpg
+John Green,/image/John_Green.png

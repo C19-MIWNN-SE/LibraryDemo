@@ -24,9 +24,9 @@ public class Book {
     @ManyToMany
     private List<Author> authors = new ArrayList<>();
 
-    @NotNull(message = "Publicatiejaar is verplicht")
     @Min(value = 1000, message = "Publicatiejaar moet minimaal 1000 zijn")
     @Max(value = 2100, message = "Publicatiejaar mag maximaal 2100 zijn")
+    @Column(nullable = true)
     private Integer publicationYear;
 
     private String genre;
