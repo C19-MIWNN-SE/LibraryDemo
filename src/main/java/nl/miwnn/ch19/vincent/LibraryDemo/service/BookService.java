@@ -37,16 +37,6 @@ public class BookService {
         bookRepository.save(book);
     }
 
-    public boolean isBookTitleDuplicate(Book book) {
-        // if the title does not exist it is unique
-        if (!bookRepository.existsByTitle(book.getTitle())) {
-            return false;
-        }
-
-        // otherwise the title is only allowed if this book is already the "owner" of the title
-        return !findByTitle(book.getTitle()).getId().equals(book.getId());
-    }
-
     public void deleteBook(String title) {
         bookRepository.delete(bookRepository.findBookByTitle(title).orElseThrow(
                 () -> new EntityNotFoundException(String.format("No book found with title: %s", title))));

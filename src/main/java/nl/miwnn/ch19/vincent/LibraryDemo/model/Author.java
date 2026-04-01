@@ -2,6 +2,7 @@ package nl.miwnn.ch19.vincent.LibraryDemo.model;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
+import nl.miwnn.ch19.vincent.LibraryDemo.validation.UniqueAuthorName;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,6 +13,7 @@ import java.util.List;
  */
 @Entity
 @Table(uniqueConstraints = @UniqueConstraint(columnNames = {"firstName", "lastName"}))
+@UniqueAuthorName
 public class Author {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

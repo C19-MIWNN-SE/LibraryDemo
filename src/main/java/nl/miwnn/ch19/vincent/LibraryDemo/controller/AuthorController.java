@@ -41,9 +41,9 @@ public class AuthorController {
         return "author-overview";
     }
 
-    @GetMapping("/detail/{id}")
-    public String showAuthorDetail(@PathVariable Long id, Model model) {
-        model.addAttribute("author", authorService.findById(id));
+    @GetMapping("/detail/{lastName}/{firstName}")
+    public String showAuthorDetail(@PathVariable String lastName, @PathVariable String firstName, Model model) {
+        model.addAttribute("author", authorService.findByLastNameAndFirstName(lastName, firstName));
         return "author-detail";
     }
 
@@ -53,9 +53,9 @@ public class AuthorController {
         return "author-form";
     }
 
-    @GetMapping("/edit/{id}")
-    public String showEditAuthorForm(@PathVariable Long id, Model model) {
-        model.addAttribute("author", authorService.findById(id));
+    @GetMapping("/edit/{lastName}/{firstName}")
+    public String showEditAuthorForm(@PathVariable String lastName, @PathVariable String firstName, Model model) {
+        model.addAttribute("author", authorService.findByLastNameAndFirstName(lastName, firstName));
         return "author-form";
     }
 
@@ -85,8 +85,8 @@ public class AuthorController {
         redirectAttributes.addFlashAttribute("successMessage", "Auteur succesvol opgeslagen!");
 
         if (author.getId() != null) {
-            String redirectUrl = UriComponentsBuilder.fromPath("/author/detail/{id}")
-                    .buildAndExpand(author.getId()).toUriString();
+            String redirectUrl = UriComponentsBuilder.fromPath("/author/detail/{lastName}/{firstName}")
+                    .buildAndExpand(author.getLastName(), author.getFirstName()).toUriString();
             return "redirect:" + redirectUrl;
         }
         return "redirect:/author/all";

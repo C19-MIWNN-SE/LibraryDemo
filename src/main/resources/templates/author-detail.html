@@ -13,7 +13,7 @@
         <div class="col-lg-9">
             <h1 class="display-5 fw-bold lh-1 mb-3" th:text="${author.fullName}"></h1>
             <div class="d-flex gap-2">
-                <a th:href="@{/author/edit/{id}(id=${author.id})}" class="btn btn-primary">
+                <a th:href="@{/author/edit/{lastName}/{firstName}(lastName=${author.lastName}, firstName=${author.firstName})}" class="btn btn-primary">
                     <i class="bi bi-pencil"></i> Bewerken
                 </a>
             </div>

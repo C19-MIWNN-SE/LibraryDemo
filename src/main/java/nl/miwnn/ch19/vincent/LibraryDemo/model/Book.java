@@ -2,6 +2,7 @@ package nl.miwnn.ch19.vincent.LibraryDemo.model;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
+import nl.miwnn.ch19.vincent.LibraryDemo.validation.UniqueBookTitle;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,6 +12,7 @@ import java.util.List;
  * Information about a book for which the library might have a Copy
  */
 @Entity
+@UniqueBookTitle
 public class Book {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

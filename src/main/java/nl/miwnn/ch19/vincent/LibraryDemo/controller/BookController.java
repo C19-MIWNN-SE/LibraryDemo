@@ -78,15 +78,6 @@ public class BookController {
                            BindingResult bindingResult,
                            Model model,
                            RedirectAttributes redirectAttributes) {
-        if (bookService.isBookTitleDuplicate(updatedBook)) {
-            log.warn("Book title: {} is not unique so this book cannot be saved, rejecting the field.",
-                    updatedBook.getTitle());
-            bindingResult.rejectValue(
-                    "title",
-                    "alreadyExists",
-                    "Deze titel is al in gebruik");
-        }
-
         if (bindingResult.hasErrors()) {
             log.warn("Aantal validatiefouten bij opslaan: {}",
                     bindingResult.getErrorCount());

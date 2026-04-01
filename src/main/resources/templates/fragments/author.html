@@ -24,7 +24,7 @@
     <!--/*@thymesVar id="author" type="nl.miwnn.ch19.vincent.LibraryDemo.model.Author"*/-->
     <div class="card h-100">
         <div class="card-body text-center bg-body-secondary">
-            <a th:href="@{/author/detail/{id}(id=${author.id})}">
+            <a th:href="@{/author/detail/{lastName}/{firstName}(lastName=${author.lastName}, firstName=${author.firstName})}">
                 <img th:if="${author.image != null}"
                      th:src="@{/images/{id}(id=${author.image.id})}"
                      th:alt="|Foto van ${author.fullName}|"

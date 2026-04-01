@@ -28,6 +28,12 @@ public class AuthorService {
                 () -> new EntityNotFoundException(String.format("Auteur met id %d niet gevonden", id)));
     }
 
+    public Author findByLastNameAndFirstName(String lastName, String firstName) {
+        return authorRepository.findByLastNameAndFirstName(lastName, firstName).orElseThrow(
+                () -> new EntityNotFoundException(
+                        String.format("Auteur %s %s niet gevonden", firstName, lastName)));
+    }
+
     public void saveAuthor(Author author) {
         authorRepository.save(author);
     }
