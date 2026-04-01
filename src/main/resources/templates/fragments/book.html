@@ -1,10 +1,48 @@
-<html xmlns:th="http://www.thymeleaf.org"
-      th:replace="~{fragments/layout :: layout(~{::title}, ~{::#content})}">
-<head><title>Boek wijzigen of toevoegen</title></head>
-<body>
-<div id="content">
-    <h1 class="mb-3" th:if="${book.id == null}">Voeg nieuw boek toe</h1>
-    <h1 class="mb-3" th:unless="${book.id == null}">Pas <span th:text="${book.title}"></span> aan</h1>
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<div th:fragment="bookCards(books)" class="row row-cols-6 g-5">
+    <div th:each="book : ${books}" th:insert="~{fragments/book :: bookCard(${book})}"></div>
+</div>
+
+<div th:fragment="bookCardsNew(books)" class="row row-cols-6 g-4">
+    <div th:each="book : ${books}" th:insert="~{fragments/book :: bookCard(${book})}"></div>
+
+    <div class="col h-100">
+        <div class="card h-100">
+            <div class="card-body align-content-center text-center">
+                <a th:href="@{/book/add}">Add a new book</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div th:fragment="bookCard(book)" class="col h-100">
+    <!--/*@thymesVar id="book" type="nl.miwnn.ch19.vincent.LibraryDemo.model.Book"*/-->
+
+    <div class="card h-100">
+        <a th:href="@{/book/detail/{title}(title = ${book.title})}">
+            <img height="275" th:src="${book.coverImageUrl}" class="card-img-top object-fit-cover" th:alt="|Cover image for ${book.title}|">
+        </a>
+        <div class="card-body text-center bg-body-secondary">
+            <a th:href="@{/book/detail/{title}(title = ${book.title})}">
+                <h5 class="card-title" th:text="${book.title}"></h5>
+            </a>
+        </div>
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item" th:each="author : ${book.authors}">
+                <a th:href="@{/author/details/{name}(name = ${author.fullName})}" th:text="${author.fullName}"></a>
+            </li>
+        </ul>
+        <div class="card-footer">
+            <h6 class="card-subtitle text-center"><span th:text="${book.copies.size()}"></span> available out of <span th:text="${book.copies.size()}"></span> copies</h6>
+        </div>
+    </div>
+</div>
+
+<div th:fragment="bookForm(formBook, allAuthors, allGenres, #fields)">
+    <!--/*@thymesVar id="allAuthors" type="java.util.List<nl.miwnn.ch19.vincent.LibraryDemo.model.Author>"*/-->
+    <!--/*@thymesVar id="formBook" type="nl.miwnn.ch19.vincent.LibraryDemo.model.Book"*/-->
 
     <form class="col-lg-6"
           th:action="@{/book/save}"
@@ -69,8 +107,4 @@
         <button type="submit" class="btn btn-primary">Opslaan</button>
         <a  onclick="history.back()" class="btn btn-secondary">Annuleren</a>
     </form>
-    <br/>
-    <p><a th:href="@{/book/all}">Terug naar het overzicht</a></p>
 </div>
-</body>
-</html>
