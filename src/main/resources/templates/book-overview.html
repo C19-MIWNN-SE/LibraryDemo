@@ -30,7 +30,7 @@
         <tbody>
             <tr th:each="book : ${allBooks}">
                 <td>
-                    <a th:href="@{/book/{title}(title=${book.title})}"
+                    <a th:href="@{/book/detail/{title}(title=${book.title})}"
                        th:text="${book.title}">
                         Titel
                     </a>

@@ -128,7 +128,7 @@ public class BookController {
         return "redirect:" + redirectUrl;
     }
 
-    @GetMapping({"/{title}", "/detail/{title}"})
+    @GetMapping({"/detail/{title}"})
     public String showBookDetail(
             @PathVariable String title, Model model) {
         Book book = bookService.findByTitle(title);
