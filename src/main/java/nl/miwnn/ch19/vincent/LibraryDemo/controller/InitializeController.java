@@ -5,18 +5,24 @@ import com.opencsv.bean.CsvToBeanBuilder;
 import nl.miwnn.ch19.vincent.LibraryDemo.model.Author;
 import nl.miwnn.ch19.vincent.LibraryDemo.model.Book;
 import nl.miwnn.ch19.vincent.LibraryDemo.model.Copy;
+import nl.miwnn.ch19.vincent.LibraryDemo.model.LibraryUser;
 import nl.miwnn.ch19.vincent.LibraryDemo.repository.AuthorRepository;
 import nl.miwnn.ch19.vincent.LibraryDemo.repository.BookRepository;
 import nl.miwnn.ch19.vincent.LibraryDemo.repository.CopyRepository;
+import nl.miwnn.ch19.vincent.LibraryDemo.repository.UserRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * @author Vincent Velthuizen
@@ -27,11 +33,22 @@ public class InitializeController {
     private final AuthorRepository authorRepository;
     private final BookRepository bookRepository;
     private final CopyRepository copyRepository;
+    private final UserRepository userRepository;
 
-    public InitializeController(AuthorRepository authorRepository, BookRepository bookRepository, CopyRepository copyRepository) {
+    private final PasswordEncoder passwordEncoder;
+
+    private final Logger log = LoggerFactory.getLogger(InitializeController.class);
+
+    public InitializeController(AuthorRepository authorRepository,
+                                BookRepository bookRepository,
+                                CopyRepository copyRepository,
+                                UserRepository userRepository,
+                                PasswordEncoder passwordEncoder) {
         this.authorRepository = authorRepository;
         this.bookRepository = bookRepository;
         this.copyRepository = copyRepository;
+        this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @EventListener(ContextRefreshedEvent.class)
@@ -41,6 +58,19 @@ public class InitializeController {
         }
         if (bookRepository.count() == 0) {
             seedBooks();
+        }
+        if (userRepository.count() == 0) {
+            String password = UUID.randomUUID().toString();
+
+            log.info("========================================================================================");
+            log.info("Generated password for 'beheerder' : {}", password);
+            log.info("========================================================================================");
+
+            LibraryUser admin = new LibraryUser(
+                    "beheerder",
+                    passwordEncoder.encode(password),
+                    true);
+            userRepository.save(admin);
         }
     }
 

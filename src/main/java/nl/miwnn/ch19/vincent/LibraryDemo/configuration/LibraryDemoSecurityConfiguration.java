@@ -56,26 +56,4 @@ public class LibraryDemoSecurityConfiguration {
         return new BCryptPasswordEncoder();
     }
 
-    @Bean
-    public UserDetailsService userDetailsService(PasswordEncoder encoder) {
-        String password = UUID.randomUUID().toString();
-
-        log.info("==========================================================================");
-        log.info("Generated password: {}", password);
-        log.info("==========================================================================");
-
-        var gebruiker = User.builder()
-                .username("gebruiker")
-                .password(encoder.encode(password))
-                .roles("USER")
-                .build();
-        var beheerder = User.builder()
-                .username("beheerder")
-                .password(encoder.encode(password))
-                .roles("ADMIN")
-                .build();
-
-        return new InMemoryUserDetailsManager(gebruiker, beheerder);
-    }
-
 }

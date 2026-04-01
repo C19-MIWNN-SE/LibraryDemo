@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html lang="nl" xmlns:th="http://www.thymeleaf.org">
+<html lang="nl" xmlns:th="http://www.thymeleaf.org"
+                xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 
 <head th:fragment="baseheader(title)">
     <meta charset="UTF-8">
@@ -29,12 +30,19 @@
                    href="/author/all">
                     <i class="bi bi-person"></i> Auteurs
                 </a>
+                <a class="nav-link"
+                   th:classappend="${activePage == 'users'} ? 'active' : ''"
+                   href="/user/all"
+                   sec:authorize="hasRole('ADMIN')">
+                    <i class="bi bi-person"></i> Gebruikersbeheer
+                </a>
             </div>
         </div>
         <div class="flex-fill d-flex justify-content-end align-items-center">
-            <form th:action="@{/logout}" method="post">
+            <form th:action="@{/logout}" method="post" sec:authorize="isAuthenticated()">
                 <button class="btn btn-outline-light btn-sm" type="submit">Uitloggen</button>
             </form>
+            <a th:href="@{/login}" sec:authorize="isAnonymous()">Inloggen</a>
         </div>
     </div>
 </nav>
