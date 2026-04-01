@@ -1,0 +1,35 @@
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/layout :: layout(~{::title}, ~{::#content})}">
+<head><title>Nieuwe gebruiker aanmaken</title></head>
+<body>
+<div id="content">
+    <h1>Nieuwe gebruiker aanmaken</h1>
+    <form th:action="@{/user/add}" method="post"
+          th:object="${newUser}">
+        <div class="mb-3">
+            <label for="username" class="form-label">Gebruikersnaam</label>
+            <input type="text" id="username"
+                   class="form-control" th:field="*{username}" required/>
+        </div>
+        <div class="mb-3">
+            <label for="plainPassword" class="form-label">Wachtwoord</label>
+            <input type="password" id="plainPassword"
+                   class="form-control"
+                   th:field="*{plainPassword}" required/>
+        </div>
+        <div class="mb-3">
+            <label for="checkPassword" class="form-label">Wachtwoord</label>
+            <input type="password" id="checkPassword"
+                   class="form-control"
+                   th:field="*{checkPassword}" required/>
+        </div>
+        <div class="mb-3">
+            <label for="role" class="form-label">Beheerder</label>
+            <input id="role" type="checkbox" th:field="*{administrator}">
+        </div>
+        <button type="submit" class="btn btn-primary">Aanmaken</button>
+        <a th:href="@{/user/all}" class="btn btn-secondary">Annuleren</a>
+    </form>
+</div>
+</body>
+</html>

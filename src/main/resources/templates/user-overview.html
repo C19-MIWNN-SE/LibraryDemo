@@ -1,0 +1,29 @@
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/layout :: layout(~{::title}, ~{::#content})}">
+<head><title>Gebruikersoverzicht</title></head>
+<body>
+<div id="content">
+    <h1 class="mb-3">Gebruikersoverzicht</h1>
+
+    <table class="table">
+        <thead>
+        <tr>
+            <th>Gebruikersnaam</th>
+            <th>Rol</th>
+            <th>Acties</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="user : ${users}">
+            <td th:text="${user.username}"></td>
+            <td th:text="|${user.administrator ? 'Beheerder' : 'Gebruiker'}|"></td>
+            <td></td>
+        </tr>
+        </tbody>
+    </table>
+    <a th:href="@{/user/add}" class="btn btn-primary">
+        Nieuwe gebruiker
+    </a>
+</div>
+</body>
+</html>
