@@ -36,10 +36,11 @@ public class CopyService {
         Copy copy = copyRepository.findById(copyId).orElseThrow(
                 () -> new EntityNotFoundException(String.format("Exemplaar met id %d bestaat niet.", copyId)));
 
-        // TODO validation
-//        if (copy.getAvailable() == newState) {
-//            throw new IllegalStateException(String.format("Exemplaar is %s uitgeleend.", newState ? "al" : "niet"));
-//        }
+        if (borrower == null && copy.getBorrower() == null) {
+            throw new IllegalStateException("Copy is already available");
+        } else if (borrower != null && copy.getBorrower() != null) {
+            throw new IllegalStateException("Copy is already borrowed");
+        }
 
         copy.setBorrower(borrower);
         copyRepository.save(copy);
