@@ -16,11 +16,12 @@ public class Copy {
     @ManyToOne
     private Book book;
 
-    private Boolean available;
+    @ManyToOne
+    @JoinColumn(nullable = true)
+    private LibraryUser borrower = null;
 
     public Copy(Book book) {
         this.book = book;
-        this.available = true;
     }
 
     public Copy() {
@@ -42,11 +43,15 @@ public class Copy {
         this.book = book;
     }
 
-    public Boolean getAvailable() {
-        return available;
+    public LibraryUser getBorrower() {
+        return borrower;
     }
 
-    public void setAvailable(Boolean available) {
-        this.available = available;
+    public void setBorrower(LibraryUser borrower) {
+        this.borrower = borrower;
+    }
+
+    public Boolean getAvailable() {
+        return borrower == null;
     }
 }

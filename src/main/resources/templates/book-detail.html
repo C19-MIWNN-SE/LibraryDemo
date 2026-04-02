@@ -56,14 +56,19 @@
                             Lenen (<span th:text="${copy.id}"></span>)
                         </button>
                     </form>
-                    <form th:unless="${copy.available}"
-                          th:action="@{/copies/return/{id}(id=${copy.id})}"
-                          method="post">
-                        <button type="submit" class="btn btn-outline-secondary w-100"
-                                th:disabled="${borrowDisabled}">
-                            Terugbrengen (<span th:text="${copy.id}"></span>)
-                        </button>
-                    </form>
+                    <div th:unless="${copy.available}" class="d-flex flex-column gap-1">
+                        <!-- NEW: toon wie dit exemplaar heeft geleend -->
+                        <small class="text-muted"
+                               th:text="|Geleend door: ${copy.borrower?.username}|">
+                        </small>
+                        <form th:action="@{/copies/return/{id}(id=${copy.id})}"
+                              method="post">
+                            <button type="submit" class="btn btn-outline-secondary w-100"
+                                    th:disabled="${borrowDisabled}">
+                                Terugbrengen (<span th:text="${copy.id}"></span>)
+                            </button>
+                        </form>
+                    </div>
                 </li>
             </ul>
         </div>

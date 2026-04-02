@@ -1,9 +1,11 @@
 package nl.miwnn.ch19.vincent.LibraryDemo.controller;
 
 import nl.miwnn.ch19.vincent.LibraryDemo.model.Book;
+import nl.miwnn.ch19.vincent.LibraryDemo.model.LibraryUser;
 import nl.miwnn.ch19.vincent.LibraryDemo.service.CopyService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -27,13 +29,19 @@ public class CopyController {
     }
 
     @PostMapping("/borrow/{copyId}")
-    public String borrowCopy(@PathVariable Long copyId, RedirectAttributes redirectAttributes) {
+    public String borrowCopy(@PathVariable Long copyId,
+                             Authentication authentication,
+                             RedirectAttributes redirectAttributes) {
         Book book = copyService.findById(copyId).getBook();
         String redirectUrl = UriComponentsBuilder.fromPath("/book/detail/{title}")
                 .buildAndExpand(book.getTitle()).toUriString();
         try {
-            copyService.borrowCopy(copyId);
-            redirectAttributes.addFlashAttribute("successMessage", "Boek succesvol geleend.");
+            LibraryUser currentUser = (LibraryUser) authentication.getPrincipal();
+
+            copyService.borrowCopy(copyId, currentUser);
+            redirectAttributes.addFlashAttribute(
+                    "successMessage",
+                    "Boek succesvol geleend.");
         } catch (IllegalStateException illegalStateException) {
             redirectAttributes.addFlashAttribute("errorMessage", illegalStateException.getMessage());
         }
