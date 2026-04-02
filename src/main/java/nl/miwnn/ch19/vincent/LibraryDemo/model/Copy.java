@@ -2,6 +2,9 @@ package nl.miwnn.ch19.vincent.LibraryDemo.model;
 
 import jakarta.persistence.*;
 
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
+
 /**
  * @author Vincent Velthuizen
  * A copy of a book, the library owns and that can be lent to users of the library
@@ -19,6 +22,8 @@ public class Copy {
     @ManyToOne
     @JoinColumn(nullable = true)
     private LibraryUser borrower = null;
+
+    private LocalDateTime borrowedAt;
 
     public Copy(Book book) {
         this.book = book;
@@ -49,6 +54,21 @@ public class Copy {
 
     public void setBorrower(LibraryUser borrower) {
         this.borrower = borrower;
+    }
+
+    public LocalDateTime getBorrowedAt() {
+        return borrowedAt;
+    }
+
+    public void setBorrowedAt(LocalDateTime borrowedAt) {
+        this.borrowedAt = borrowedAt;
+    }
+
+    public long getDaysOut() {
+        if (borrowedAt == null) {
+            return 0;
+        }
+        return ChronoUnit.DAYS.between(borrowedAt, LocalDateTime.now());
     }
 
     public Boolean getAvailable() {

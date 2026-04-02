@@ -6,6 +6,8 @@ import nl.miwnn.ch19.vincent.LibraryDemo.model.LibraryUser;
 import nl.miwnn.ch19.vincent.LibraryDemo.repository.CopyRepository;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+
 /**
  * @author Vincent Velthuizen
  * Handle all business logic regarding copies
@@ -43,6 +45,7 @@ public class CopyService {
         }
 
         copy.setBorrower(borrower);
+        copy.setBorrowedAt(borrower != null ? LocalDateTime.now() : null);
         copyRepository.save(copy);
         return copy;
     }

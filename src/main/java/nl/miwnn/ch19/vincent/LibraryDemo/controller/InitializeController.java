@@ -21,7 +21,9 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.time.LocalDateTime;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -73,6 +75,22 @@ public class InitializeController {
                     passwordEncoder.encode(password),
                     true);
             userRepository.save(admin);
+
+            LibraryUser esmee = new LibraryUser(
+                    "Esmee",
+                    passwordEncoder.encode("Esmee"),
+                    false);
+            userRepository.save(esmee);
+
+            List<Copy> hobbitCopies = copyRepository.findByBookTitle("The Hobbit");
+            if (!hobbitCopies.isEmpty()) {
+                Copy copy = hobbitCopies.get(0);
+                copy.setBorrower(esmee);
+                copy.setBorrowedAt(LocalDateTime.now().minusDays(3));
+                copyRepository.save(copy);
+            } else {
+                log.warn("Kon geen exemplaar van 'The Hobbit' vinden voor Esmee");
+            }
         }
     }
 
