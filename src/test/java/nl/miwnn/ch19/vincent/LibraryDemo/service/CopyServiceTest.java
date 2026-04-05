@@ -10,6 +10,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -37,9 +38,25 @@ class CopyServiceTest {
 
         copyService.borrowCopy(1L, new LibraryUser());
 
-        // TODO check is assertAll works here
-        assertNotNull(copy.getBorrower());
-        verify(copyRepository, times(1)).save(copy);
+        assertAll(
+                () -> assertNotNull(copy.getBorrower()),
+                () -> verify(copyRepository, times(1)).save(copy)
+        );
+    }
+
+    @Test
+    @DisplayName("borrowCopy should set borrowedAt to approximately now")
+    void borrowCopyShouldSetBorrowedAt() {
+        Copy copy = new Copy();
+        copy.setId(1L);
+        LocalDateTime before = LocalDateTime.now();
+
+        when(copyRepository.findById(1L)).thenReturn(Optional.of(copy));
+
+        copyService.borrowCopy(1L, new LibraryUser());
+
+        assertNotNull(copy.getBorrowedAt());
+        assertFalse(copy.getBorrowedAt().isBefore(before));
     }
 
     @Test
@@ -52,6 +69,51 @@ class CopyServiceTest {
         when(copyRepository.findById(2L)).thenReturn(Optional.of(copy));
 
         assertThrows(IllegalStateException.class, () -> copyService.borrowCopy(2L, new LibraryUser()));
+        verify(copyRepository, never()).save(any());
+    }
+
+    @Test
+    @DisplayName("returnCopy should make copy available and save")
+    void returnCopyShouldMakeCopyAvailableAndSave() {
+        Copy copy = new Copy();
+        copy.setId(3L);
+        copy.setBorrower(new LibraryUser());
+        copy.setBorrowedAt(LocalDateTime.now().minusDays(2));
+
+        when(copyRepository.findById(3L)).thenReturn(Optional.of(copy));
+
+        copyService.returnCopy(3L);
+
+        assertAll(
+                () -> assertNull(copy.getBorrower()),
+                () -> verify(copyRepository, times(1)).save(copy)
+        );
+    }
+
+    @Test
+    @DisplayName("returnCopy should clear borrowedAt")
+    void returnCopyShouldClearBorrowedAt() {
+        Copy copy = new Copy();
+        copy.setId(4L);
+        copy.setBorrower(new LibraryUser());
+        copy.setBorrowedAt(LocalDateTime.now().minusDays(2));
+
+        when(copyRepository.findById(4L)).thenReturn(Optional.of(copy));
+
+        copyService.returnCopy(4L);
+
+        assertNull(copy.getBorrowedAt());
+    }
+
+    @Test
+    @DisplayName("returnCopy should throw an exception when already available")
+    void returnCopyShouldThrowAnExceptionWhenAlreadyAvailable() {
+        Copy copy = new Copy();
+        copy.setId(5L);
+
+        when(copyRepository.findById(5L)).thenReturn(Optional.of(copy));
+
+        assertThrows(IllegalStateException.class, () -> copyService.returnCopy(5L));
         verify(copyRepository, never()).save(any());
     }
 }

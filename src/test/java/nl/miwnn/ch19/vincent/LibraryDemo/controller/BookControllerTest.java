@@ -12,7 +12,6 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -33,7 +32,7 @@ class BookControllerTest {
     private AuthorService authorService;
 
     @Test
-    @DisplayName("showBookOverview_should return 200 and books in model")
+    @DisplayName("showBookOverview should return 200 and books in model")
     void showBookOverviewShouldReturn200AndBooksInModel() throws Exception {
         List<Book> books = List.of(
                 new Book("De Aanslag", 1982),
