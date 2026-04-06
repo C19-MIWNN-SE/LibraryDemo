@@ -2,6 +2,7 @@ package nl.miwnn.ch19.vincent.LibraryDemo.controller;
 
 import nl.miwnn.ch19.vincent.LibraryDemo.dto.ChangePasswordDTO;
 import nl.miwnn.ch19.vincent.LibraryDemo.model.LibraryUser;
+import nl.miwnn.ch19.vincent.LibraryDemo.service.CopyService;
 import nl.miwnn.ch19.vincent.LibraryDemo.service.LibraryUserService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -15,6 +16,8 @@ import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.servlet.mvc.support.RedirectAttributesModelMap;
 
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -26,6 +29,9 @@ class LibraryUserControllerTest {
 
     @Mock
     private LibraryUserService libraryUserService;
+
+    @Mock
+    private CopyService copyService;
 
     @Mock
     private PasswordEncoder passwordEncoder;
@@ -47,6 +53,117 @@ class LibraryUserControllerTest {
 
     private BindingResult bindingResultFor(ChangePasswordDTO dto) {
         return new BeanPropertyBindingResult(dto, "changePassword");
+    }
+
+    // --- showUserHome ---
+
+    @Test
+    @DisplayName("showUserHome should return the user-home view")
+    void showUserHomeShouldReturnCorrectView() {
+        LibraryUser user = testUser("testgebruiker");
+        when(libraryUserService.loadUserByUsername("testgebruiker")).thenReturn(user);
+
+        String result = libraryUserController.showUserHome(user, mock(Model.class));
+
+        assertEquals("user-home", result);
+    }
+
+    @Test
+    @DisplayName("showUserHome should add borrowedCopies to the model")
+    void showUserHomeShouldAddBorrowedCopiesToModel() {
+        LibraryUser user = testUser("testgebruiker");
+        when(libraryUserService.loadUserByUsername("testgebruiker")).thenReturn(user);
+        Model model = mock(Model.class);
+
+        libraryUserController.showUserHome(user, model);
+
+        verify(model).addAttribute(eq("borrowedCopies"), eq(user.getBorrowedCopies()));
+    }
+
+    // --- returnCopyFromHome ---
+
+    @Test
+    @DisplayName("returnCopyFromHome should redirect to user home on success")
+    void returnCopyFromHomeShouldRedirectToUserHome() {
+        LibraryUser user = testUser("testgebruiker");
+        when(copyService.isBorrowedBy(1L, user)).thenReturn(true);
+
+        String result = libraryUserController.returnCopyFromHome(1L, user, new RedirectAttributesModelMap());
+
+        assertEquals("redirect:/user/home", result);
+    }
+
+    @Test
+    @DisplayName("returnCopyFromHome should call copyService returnCopy when copy belongs to user")
+    void returnCopyFromHomeShouldCallReturnCopy() {
+        LibraryUser user = testUser("testgebruiker");
+        when(copyService.isBorrowedBy(1L, user)).thenReturn(true);
+
+        libraryUserController.returnCopyFromHome(1L, user, new RedirectAttributesModelMap());
+
+        verify(copyService, times(1)).returnCopy(1L);
+    }
+
+    @Test
+    @DisplayName("returnCopyFromHome should set a success message on success")
+    void returnCopyFromHomeShouldSetSuccessMessage() {
+        LibraryUser user = testUser("testgebruiker");
+        when(copyService.isBorrowedBy(1L, user)).thenReturn(true);
+        RedirectAttributesModelMap redirectAttributes = new RedirectAttributesModelMap();
+
+        libraryUserController.returnCopyFromHome(1L, user, redirectAttributes);
+
+        assertTrue(redirectAttributes.getFlashAttributes().containsKey("successMessage"));
+    }
+
+    @Test
+    @DisplayName("returnCopyFromHome should set an error message when the copy is already available")
+    void returnCopyFromHomeShouldSetErrorMessageWhenAlreadyAvailable() {
+        LibraryUser user = testUser("testgebruiker");
+        when(copyService.isBorrowedBy(1L, user)).thenReturn(true);
+        doThrow(new IllegalStateException("Copy is already available"))
+                .when(copyService).returnCopy(1L);
+        RedirectAttributesModelMap redirectAttributes = new RedirectAttributesModelMap();
+
+        libraryUserController.returnCopyFromHome(1L, user, redirectAttributes);
+
+        assertTrue(redirectAttributes.getFlashAttributes().containsKey("errorMessage"));
+    }
+
+    @Test
+    @DisplayName("returnCopyFromHome should still redirect when the copy is already available")
+    void returnCopyFromHomeShouldStillRedirectWhenAlreadyAvailable() {
+        LibraryUser user = testUser("testgebruiker");
+        when(copyService.isBorrowedBy(1L, user)).thenReturn(true);
+        doThrow(new IllegalStateException("Copy is already available"))
+                .when(copyService).returnCopy(1L);
+
+        String result = libraryUserController.returnCopyFromHome(1L, user, new RedirectAttributesModelMap());
+
+        assertEquals("redirect:/user/home", result);
+    }
+
+    @Test
+    @DisplayName("returnCopyFromHome should set an error message when the copy does not belong to the user")
+    void returnCopyFromHomeShouldSetErrorMessageWhenNotOwner() {
+        LibraryUser user = testUser("testgebruiker");
+        when(copyService.isBorrowedBy(1L, user)).thenReturn(false);
+        RedirectAttributesModelMap redirectAttributes = new RedirectAttributesModelMap();
+
+        libraryUserController.returnCopyFromHome(1L, user, redirectAttributes);
+
+        assertTrue(redirectAttributes.getFlashAttributes().containsKey("errorMessage"));
+    }
+
+    @Test
+    @DisplayName("returnCopyFromHome should not call returnCopy when copy does not belong to the user")
+    void returnCopyFromHomeShouldNotCallReturnCopyWhenNotOwner() {
+        LibraryUser user = testUser("testgebruiker");
+        when(copyService.isBorrowedBy(1L, user)).thenReturn(false);
+
+        libraryUserController.returnCopyFromHome(1L, user, new RedirectAttributesModelMap());
+
+        verify(copyService, never()).returnCopy(any());
     }
 
     // --- deleteUser ---

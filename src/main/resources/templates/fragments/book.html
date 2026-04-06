@@ -44,6 +44,33 @@
     </div>
 </div>
 
+<div th:fragment="borrowedCopyCard(copy)" class="col h-100">
+    <!--/*@thymesVar id="copy" type="nl.miwnn.ch19.vincent.LibraryDemo.model.Copy"*/-->
+
+    <div class="card h-100">
+        <a th:href="@{/book/detail/{title}(title=${copy.book.title})}">
+            <img height="275" th:src="${copy.book.coverImageUrl}" class="card-img-top object-fit-cover"
+                 th:alt="|Cover image for ${copy.book.title}|">
+        </a>
+        <div class="card-body text-center bg-body-secondary">
+            <a th:href="@{/book/detail/{title}(title=${copy.book.title})}">
+                <h5 class="card-title" th:text="${copy.book.title}"></h5>
+            </a>
+        </div>
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item" th:each="author : ${copy.book.authors}">
+                <a th:href="@{/author/detail/{id}(id=${author.id})}" th:text="${author.fullName}"></a>
+            </li>
+        </ul>
+        <div class="card-footer text-center">
+            <small class="text-muted d-block mb-2" th:text="|${copy.daysOut} dag(en) geleend|"></small>
+            <form th:action="@{/user/home/return/{id}(id=${copy.id})}" method="post">
+                <button type="submit" class="btn btn-warning btn-sm w-100">Terugbrengen</button>
+            </form>
+        </div>
+    </div>
+</div>
+
 <div th:fragment="bookForm(formBook, allAuthors, allGenres, #fields)">
     <!--/*@thymesVar id="allAuthors" type="java.util.List<nl.miwnn.ch19.vincent.LibraryDemo.model.Author>"*/-->
     <!--/*@thymesVar id="formBook" type="nl.miwnn.ch19.vincent.LibraryDemo.model.Book"*/-->

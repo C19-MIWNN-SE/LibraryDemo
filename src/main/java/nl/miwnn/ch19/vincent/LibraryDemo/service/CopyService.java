@@ -21,6 +21,10 @@ public class CopyService {
         this.copyRepository = copyRepository;
     }
 
+    public boolean isBorrowedBy(Long copyId, LibraryUser user) {
+        return user.equals(findById(copyId).getBorrower());
+    }
+
     public Copy findById(Long copyId) {
         return copyRepository.findById(copyId).orElseThrow(
                 () -> new EntityNotFoundException(String.format("Exemplaar met id %d bestaat niet.", copyId)));

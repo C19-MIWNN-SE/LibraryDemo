@@ -9,6 +9,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author Vincent Velthuizen
@@ -28,6 +29,10 @@ public class LibraryUser implements UserDetails {
     private String password;
 
     private Boolean administrator;
+
+    // TODO hier kan ook Transactional gebruikt worden!
+    @OneToMany(mappedBy = "borrower", fetch = FetchType.EAGER)
+    private List<Copy> borrowedCopies = new ArrayList<>();
 
     public LibraryUser() {}
 
@@ -97,5 +102,21 @@ public class LibraryUser implements UserDetails {
 
     public void setAdministrator(Boolean administrator) {
         this.administrator = administrator;
+    }
+
+    public List<Copy> getBorrowedCopies() {
+        return borrowedCopies;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof LibraryUser that)) return false;
+        return id != null && id.equals(that.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
     }
 }

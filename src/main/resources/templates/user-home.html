@@ -1,0 +1,23 @@
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/layout :: layout(~{::title}, ~{::#content})}">
+<head><title>Mijn pagina</title></head>
+<body>
+<div id="content">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h1 th:text="|Welkom, ${#authentication.name}|"></h1>
+        <a th:href="@{/user/change-password}" class="btn btn-outline-secondary">Wachtwoord wijzigen</a>
+    </div>
+
+    <h2 class="mb-3">Geleende boeken</h2>
+
+    <p th:if="${#lists.isEmpty(borrowedCopies)}" class="text-muted">
+        U heeft momenteel geen boeken geleend.
+    </p>
+
+    <div class="row row-cols-6 g-4" th:unless="${#lists.isEmpty(borrowedCopies)}">
+        <div th:each="copy : ${borrowedCopies}"
+             th:insert="~{fragments/book :: borrowedCopyCard(${copy})}"></div>
+    </div>
+</div>
+</body>
+</html>

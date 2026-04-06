@@ -42,6 +42,8 @@ public class LibraryDemoSecurityConfiguration {
                         .requestMatchers(
                                 "/copies/borrow/**",
                                 "/copies/return/**",
+                                "/user/home",
+                                "/user/home/return/**",
                                 "/user/change-password"
                         ).hasAnyRole("USER", "ADMIN")
                         .requestMatchers(
@@ -58,7 +60,7 @@ public class LibraryDemoSecurityConfiguration {
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form
-                        .defaultSuccessUrl("/book/all")
+                        .defaultSuccessUrl("/user/home")
                         .permitAll()
                 )
                 .logout(logout -> logout
