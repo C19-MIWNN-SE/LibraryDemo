@@ -1,10 +1,15 @@
 package nl.miwnn.ch19.vincent.LibraryDemo.controller;
 
 import jakarta.validation.Valid;
+import nl.miwnn.ch19.vincent.LibraryDemo.dto.ChangePasswordDTO;
 import nl.miwnn.ch19.vincent.LibraryDemo.dto.NewLibraryUserDTO;
 import nl.miwnn.ch19.vincent.LibraryDemo.repository.UserRepository;
 import nl.miwnn.ch19.vincent.LibraryDemo.service.LibraryUserService;
 import nl.miwnn.ch19.vincent.LibraryDemo.service.mapper.LibraryUserMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
@@ -20,6 +25,8 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 @Controller
 @RequestMapping("/user")
 public class LibraryUserController {
+    private static final Logger log = LoggerFactory.getLogger(LibraryUserController.class);
+
     private final LibraryUserService libraryUserService;
     private final PasswordEncoder passwordEncoder;
 
@@ -31,6 +38,7 @@ public class LibraryUserController {
     }
     @GetMapping("/all")
     public String showUserOverview(Model model) {
+        log.debug("Gebruikersoverzicht opgevraagd");
         model.addAttribute("users", libraryUserService.getAllUsers());
         return "user-overview";
     }
@@ -53,9 +61,11 @@ public class LibraryUserController {
         }
 
         if (bindingResult.hasErrors()) {
+            log.warn("Validatiefouten bij aanmaken gebruiker: {}", bindingResult.getErrorCount());
             return "users/add-user";
         }
 
+        log.info("Nieuwe gebruiker aanmaken: {}", dto.getUsername());
         libraryUserService.saveNewUser(dto);
         redirectAttributes.addFlashAttribute(
                 "successMessage",
@@ -66,9 +76,56 @@ public class LibraryUserController {
     public String deleteUser(
             @PathVariable Long id,
             RedirectAttributes redirectAttributes) {
+        log.info("Gebruiker verwijderen met id: {}", id);
         libraryUserService.deleteById(id);
         redirectAttributes.addFlashAttribute(
                 "successMessage", "Gebruiker verwijderd.");
         return "redirect:/user/all";
+    }
+
+    @PostMapping("/reset-password/{id}")
+    public String resetPassword(
+            @PathVariable Long id,
+            RedirectAttributes redirectAttributes) {
+        log.info("Wachtwoord resetten voor gebruiker met id: {}", id);
+        String newPassword = libraryUserService.resetPassword(id);
+        redirectAttributes.addFlashAttribute(
+                "successMessage", "Wachtwoord gereset. Nieuw wachtwoord: " + newPassword);
+        return "redirect:/user/all";
+    }
+
+    @GetMapping("/change-password")
+    public String showChangePasswordForm(Model model) {
+        model.addAttribute("changePassword", new ChangePasswordDTO());
+        return "change-password-form";
+    }
+
+    @PostMapping("/change-password")
+    public String changePassword(
+            @ModelAttribute("changePassword") ChangePasswordDTO dto,
+            BindingResult bindingResult,
+            @AuthenticationPrincipal UserDetails currentUser,
+            RedirectAttributes redirectAttributes) {
+
+        if (!dto.getNewPassword().equals(dto.getCheckPassword())) {
+            bindingResult.rejectValue("checkPassword", "unequal", "Wachtwoorden komen niet overeen.");
+        }
+
+        if (bindingResult.hasErrors()) {
+            log.warn("Validatiefouten bij wijzigen wachtwoord voor gebruiker: {}", currentUser.getUsername());
+            return "change-password-form";
+        }
+
+        log.info("Wachtwoord wijzigen voor gebruiker: {}", currentUser.getUsername());
+        boolean success = libraryUserService.changePassword(currentUser.getUsername(), dto);
+        if (!success) {
+            log.warn("Onjuist huidig wachtwoord opgegeven door gebruiker: {}", currentUser.getUsername());
+            bindingResult.rejectValue("currentPassword", "incorrect", "Huidig wachtwoord is onjuist.");
+            return "change-password-form";
+        }
+
+        log.info("Wachtwoord succesvol gewijzigd voor gebruiker: {}", currentUser.getUsername());
+        redirectAttributes.addFlashAttribute("successMessage", "Wachtwoord succesvol gewijzigd.");
+        return "redirect:/book/all";
     }
 }

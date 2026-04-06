@@ -30,6 +30,7 @@ public class LibraryDemoSecurityConfiguration {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
                                 "/",
+                                "/error",
                                 "/book/all",
                                 "/book/detail/**",
                                 "/author/all",
@@ -40,7 +41,8 @@ public class LibraryDemoSecurityConfiguration {
                         ).permitAll()
                         .requestMatchers(
                                 "/copies/borrow/**",
-                                "/copies/return/**"
+                                "/copies/return/**",
+                                "/user/change-password"
                         ).hasAnyRole("USER", "ADMIN")
                         .requestMatchers(
                                 "/book/add",
