@@ -2,9 +2,12 @@ package nl.miwnn.ch19.vincent.LibraryDemo.service;
 
 import jakarta.persistence.EntityNotFoundException;
 import nl.miwnn.ch19.vincent.LibraryDemo.model.Author;
+import nl.miwnn.ch19.vincent.LibraryDemo.model.Book;
 import nl.miwnn.ch19.vincent.LibraryDemo.repository.AuthorRepository;
+import nl.miwnn.ch19.vincent.LibraryDemo.repository.BookRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -14,9 +17,11 @@ import java.util.List;
 @Service
 public class AuthorService {
     private final AuthorRepository authorRepository;
+    private final BookRepository bookRepository;
 
-    public AuthorService(AuthorRepository authorRepository) {
+    public AuthorService(AuthorRepository authorRepository, BookRepository bookRepository) {
         this.authorRepository = authorRepository;
+        this.bookRepository = bookRepository;
     }
 
     public List<Author> getAllAuthors() {
@@ -36,5 +41,14 @@ public class AuthorService {
 
     public void saveAuthor(Author author) {
         authorRepository.save(author);
+    }
+
+    public void deleteAuthor(Long id) {
+        Author author = findById(id);
+        for (Book book : new ArrayList<>(author.getBooks())) {
+            book.getAuthors().remove(author);
+            bookRepository.save(book);
+        }
+        authorRepository.delete(author);
     }
 }

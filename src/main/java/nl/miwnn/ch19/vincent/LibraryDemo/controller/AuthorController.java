@@ -44,7 +44,9 @@ public class AuthorController {
 
     @GetMapping("/detail/{lastName}/{firstName}")
     public String showAuthorDetail(@PathVariable String lastName, @PathVariable String firstName, Model model) {
-        model.addAttribute("author", authorService.findByLastNameAndFirstName(lastName, firstName));
+        Author author = authorService.findByLastNameAndFirstName(lastName, firstName);
+        model.addAttribute("author", author);
+        model.addAttribute("formAuthor", author);
         return "author-detail";
     }
 
@@ -60,6 +62,14 @@ public class AuthorController {
     public String showEditAuthorForm(@PathVariable String lastName, @PathVariable String firstName, Model model) {
         model.addAttribute("formAuthor", authorService.findByLastNameAndFirstName(lastName, firstName));
         return "author-form";
+    }
+
+    @PostMapping("/delete/{id}")
+    public String deleteAuthor(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+        log.info("Verwijderen van auteur met id: {}", id);
+        authorService.deleteAuthor(id);
+        redirectAttributes.addFlashAttribute("successMessage", "Auteur succesvol verwijderd!");
+        return "redirect:/author/all";
     }
 
     @PostMapping("/save")

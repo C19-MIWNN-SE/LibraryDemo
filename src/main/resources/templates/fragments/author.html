@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html lang="nl" xmlns:th="http://www.thymeleaf.org">
+<html lang="nl" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 
 <div th:fragment="authorCards(authors)" class="row row-cols-2 row-cols-md-5 g-4">
     <div th:each="author : ${authors}" th:insert="~{fragments/author :: authorCard(${author})}"></div>
@@ -13,7 +14,8 @@
                 <div class="card-body align-content-center text-center">
                     <button type="button" class="btn btn-primary"
                             data-bs-toggle="modal"
-                            data-bs-target="#addAuthorModal">
+                            data-bs-target="#addAuthorModal"
+                            sec:authorize="hasRole('ADMIN')">
                         Auteur toevoegen
                     </button>
                 </div>
@@ -31,8 +33,23 @@
                      th:src="@{/images/{id}(id=${author.image.id})}"
                      th:alt="|Foto van ${author.fullName}|"
                      class="w-100 cirkel mb-2">
-                <h5 class="card-title" th:text="${author.fullName}"></h5>
             </a>
+            <div class="d-flex align-items-center justify-content-center gap-2">
+                <a th:href="@{/author/detail/{lastName}/{firstName}(lastName=${author.lastName}, firstName=${author.firstName})}">
+                    <h5 class="card-title mb-0" th:text="${author.fullName}"></h5>
+                </a>
+                <button type="button"
+                        class="btn btn-warning btn-sm"
+                        data-bs-toggle="modal"
+                        data-bs-target="#editAuthorModal"
+                        th:data-author-id="${author.id}"
+                        th:data-first-name="${author.firstName}"
+                        th:data-last-name="${author.lastName}"
+                        th:data-image-id="${author.image != null ? author.image.id : ''}"
+                        sec:authorize="hasRole('ADMIN')">
+                    <i class="bi bi-pencil"></i>
+                </button>
+            </div>
         </div>
         <ul class="list-group list-group-flush">
             <li class="list-group-item" th:each="book, iterStat : ${author.books}" th:if="${iterStat.index < 3}">
@@ -41,23 +58,12 @@
         </ul>
         <div class="card-footer">
             <small class="text-muted text-center d-block" th:text="|${author.books.size()} boeken totaal|"></small>
-
-            <button type="button"
-                    class="btn btn-warning btn-sm"
-                    data-bs-toggle="modal"
-                    data-bs-target="#editAuthorModal"
-                    th:data-author-id="${author.id}"
-                    th:data-first-name="${author.firstName}"
-                    th:data-last-name="${author.lastName}"
-                    th:data-image-id="${author.image != null ? author.image.id : ''}">
-                <i class="bi bi-pencil"></i>
-            </button>
         </div>
     </div>
 </div>
 
-<form th:fragment="authorForm(formAuthor)"
-      id="addAuthorForm"
+<form th:fragment="authorForm(formAuthor, formId)"
+      th:id="${formId}"
       th:action="@{/author/save}"
       method="post"
       th:object="${formAuthor}"
@@ -82,10 +88,11 @@
         <div class="invalid-feedback" th:if="${#fields.hasErrors('lastName')}" th:errors="*{lastName}"></div>
     </div>
 
-    <div class="mb-3" th:if="*{image != null}">
+    <div class="mb-3 current-image-section" th:classappend="*{image == null} ? 'd-none' : ''">
         <label class="form-label">Huidige foto</label>
         <div>
-            <img th:src="@{/images/{id}(id=*{image.id})}" th:alt="|Foto van *{firstName} *{lastName}|"
+            <img th:src="${formAuthor.image != null ? '/images/' + formAuthor.image.id : ''}"
+                 th:alt="|Foto van ${formAuthor.firstName} ${formAuthor.lastName}|"
                  class="img-thumbnail" style="max-height: 100px;">
         </div>
         <div class="form-check mt-2">
@@ -100,5 +107,26 @@
         <input type="file" id="imageFile" name="imageFile" class="form-control" accept="image/*">
     </div>
 </form>
+
+<div th:fragment="editAuthorModal(formAuthor, formId)"
+     class="modal fade" id="editAuthorModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Auteur bewerken</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body"
+                 th:insert="~{fragments/author :: authorForm(${formAuthor}, ${formId})}">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary"
+                        data-bs-dismiss="modal">Annuleren</button>
+                <button type="submit" th:attr="form=${formId}"
+                        class="btn btn-primary">Opslaan</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 </html>

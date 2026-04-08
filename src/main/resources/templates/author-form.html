@@ -10,7 +10,7 @@
     <h1 class="mb-4" th:unless="${formAuthor.id == null}" th:text="|${formAuthor.fullName} bewerken|"></h1>
 
     <div class="col-lg-6"
-         th:replace="~{fragments/author :: authorForm(${formAuthor})}">
+         th:replace="~{fragments/author :: authorForm(${formAuthor}, 'addAuthorForm')}">
     </div>
 
     <div class="mt-3">

@@ -1,4 +1,5 @@
 <html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
       th:replace="~{fragments/layout :: layout(~{::title}, ~{::#content})}">
 <head><title th:text="${author.fullName}">Auteur</title></head>
 <body>
@@ -13,12 +14,23 @@
         <div class="col-lg-9">
             <h1 class="display-5 fw-bold lh-1 mb-3" th:text="${author.fullName}"></h1>
             <div class="d-flex gap-2">
-                <a th:href="@{/author/edit/{lastName}/{firstName}(lastName=${author.lastName}, firstName=${author.firstName})}" class="btn btn-primary">
+                <button type="button" class="btn btn-warning"
+                        data-bs-toggle="modal"
+                        data-bs-target="#editAuthorModal"
+                        sec:authorize="hasRole('ADMIN')">
                     <i class="bi bi-pencil"></i> Bewerken
-                </a>
+                </button>
+                <form th:action="@{/author/delete/{id}(id=${author.id})}" method="post"
+                      class="m-0" sec:authorize="hasRole('ADMIN')">
+                    <button type="submit" class="btn btn-danger">
+                        <i class="bi bi-trash"></i> Verwijderen
+                    </button>
+                </form>
             </div>
         </div>
     </div>
+
+    <div th:replace="~{fragments/author :: editAuthorModal(${formAuthor}, 'editAuthorForm')}"></div>
 
     <h2 class="mt-4 mb-3">Boeken</h2>
     <div th:replace="~{fragments/book :: bookCards(${author.books})}"></div>
