@@ -21,14 +21,14 @@
         <div class="flex-fill d-flex justify-content-center">
             <div class="navbar-nav">
                 <a class="nav-link"
-                   th:classappend="${activePage == 'books'} ? 'active' : ''"
-                   href="/book/all">
-                    <i class="bi bi-book"></i> Boeken
-                </a>
-                <a class="nav-link"
                    th:classappend="${activePage == 'authors'} ? 'active' : ''"
                    href="/author/all">
                     <i class="bi bi-person"></i> Auteurs
+                </a>
+                <a class="nav-link"
+                   th:classappend="${activePage == 'books'} ? 'active' : ''"
+                   href="/book/all">
+                    <i class="bi bi-book"></i> Boeken
                 </a>
                 <a class="nav-link"
                    th:classappend="${activePage == 'users'} ? 'active' : ''"
