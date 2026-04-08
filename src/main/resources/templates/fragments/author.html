@@ -11,9 +11,11 @@
         <div class="col h-100">
             <div class="card h-100">
                 <div class="card-body align-content-center text-center">
-                    <a th:href="@{/author/add}" class="btn btn-outline-secondary btn-lg px-4 fw-bold">
-                        <i class="bi bi-plus-square"></i> Auteur toevoegen
-                    </a>
+                    <button type="button" class="btn btn-primary"
+                            data-bs-toggle="modal"
+                            data-bs-target="#addAuthorModal">
+                        Auteur toevoegen
+                    </button>
                 </div>
             </div>
         </div>
@@ -39,8 +41,64 @@
         </ul>
         <div class="card-footer">
             <small class="text-muted text-center d-block" th:text="|${author.books.size()} boeken totaal|"></small>
+
+            <button type="button"
+                    class="btn btn-warning btn-sm"
+                    data-bs-toggle="modal"
+                    data-bs-target="#editAuthorModal"
+                    th:data-author-id="${author.id}"
+                    th:data-first-name="${author.firstName}"
+                    th:data-last-name="${author.lastName}"
+                    th:data-image-id="${author.image != null ? author.image.id : ''}">
+                <i class="bi bi-pencil"></i>
+            </button>
         </div>
     </div>
 </div>
+
+<form th:fragment="authorForm(formAuthor)"
+      id="addAuthorForm"
+      th:action="@{/author/save}"
+      method="post"
+      th:object="${formAuthor}"
+      enctype="multipart/form-data">
+    <!--/*@thymesVar id="formAuthor" type="nl.miwnn.ch19.vincent.LibraryDemo.model.Author"*/-->
+
+    <input type="hidden" th:field="*{id}">
+
+    <div class="mb-3">
+        <label for="firstName" class="form-label">Voornaam</label>
+        <input type="text" id="firstName" class="form-control"
+               th:classappend="${#fields.hasErrors('firstName')} ? 'is-invalid' : ''"
+               th:field="*{firstName}" placeholder="Voornaam">
+        <div class="invalid-feedback" th:if="${#fields.hasErrors('firstName')}" th:errors="*{firstName}"></div>
+    </div>
+
+    <div class="mb-3">
+        <label for="lastName" class="form-label">Achternaam</label>
+        <input type="text" id="lastName" class="form-control"
+               th:classappend="${#fields.hasErrors('lastName')} ? 'is-invalid' : ''"
+               th:field="*{lastName}" placeholder="Achternaam">
+        <div class="invalid-feedback" th:if="${#fields.hasErrors('lastName')}" th:errors="*{lastName}"></div>
+    </div>
+
+    <div class="mb-3" th:if="*{image != null}">
+        <label class="form-label">Huidige foto</label>
+        <div>
+            <img th:src="@{/images/{id}(id=*{image.id})}" th:alt="|Foto van *{firstName} *{lastName}|"
+                 class="img-thumbnail" style="max-height: 100px;">
+        </div>
+        <div class="form-check mt-2">
+            <input type="checkbox" id="deleteImage" name="deleteImage" value="true" class="form-check-input">
+            <label for="deleteImage" class="form-check-label">Foto verwijderen</label>
+        </div>
+    </div>
+
+    <div class="mb-3">
+        <label for="imageFile" class="form-label"
+               th:text="*{image != null} ? 'Nieuwe foto uploaden' : 'Profielfoto'"></label>
+        <input type="file" id="imageFile" name="imageFile" class="form-control" accept="image/*">
+    </div>
+</form>
 
 </html>

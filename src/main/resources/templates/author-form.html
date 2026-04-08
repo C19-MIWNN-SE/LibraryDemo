@@ -1,43 +1,24 @@
 <html xmlns:th="http://www.thymeleaf.org"
       th:replace="~{fragments/layout :: layout(~{::title}, ~{::#content})}">
 <head>
-    <title th:if="${author.id == null}">Auteur toevoegen</title>
-    <title th:unless="${author.id == null}" th:text="|${author.fullName} bewerken|">Auteur bewerken</title>
+    <title th:if="${formAuthor.id == null}">Auteur toevoegen</title>
+    <title th:unless="${formAuthor.id == null}" th:text="|${formAuthor.fullName} bewerken|">Auteur bewerken</title>
 </head>
 <body>
 <div id="content">
-    <h1 class="mb-4" th:if="${author.id == null}">Auteur toevoegen</h1>
-    <h1 class="mb-4" th:unless="${author.id == null}" th:text="|${author.fullName} bewerken|"></h1>
+    <h1 class="mb-4" th:if="${formAuthor.id == null}">Auteur toevoegen</h1>
+    <h1 class="mb-4" th:unless="${formAuthor.id == null}" th:text="|${formAuthor.fullName} bewerken|"></h1>
 
-    <form class="col-lg-6" th:action="@{/author/save}" method="post"
-          th:object="${author}" enctype="multipart/form-data">
+    <div class="col-lg-6"
+         th:replace="~{fragments/author :: authorForm(${formAuthor})}">
+    </div>
 
-        <input type="hidden" th:field="*{id}">
-
-        <div class="mb-3">
-            <label for="firstName" class="form-label">Voornaam</label>
-            <input type="text" id="firstName" class="form-control"
-                   th:classappend="${#fields.hasErrors('firstName')} ? 'is-invalid' : ''"
-                   th:field="*{firstName}" placeholder="Voornaam">
-            <div class="invalid-feedback" th:if="${#fields.hasErrors('firstName')}" th:errors="*{firstName}"></div>
-        </div>
-
-        <div class="mb-3">
-            <label for="lastName" class="form-label">Achternaam</label>
-            <input type="text" id="lastName" class="form-control"
-                   th:classappend="${#fields.hasErrors('lastName')} ? 'is-invalid' : ''"
-                   th:field="*{lastName}" placeholder="Achternaam">
-            <div class="invalid-feedback" th:if="${#fields.hasErrors('lastName')}" th:errors="*{lastName}"></div>
-        </div>
-
-        <div class="mb-3">
-            <label for="imageFile" class="form-label">Profielfoto</label>
-            <input type="file" id="imageFile" name="imageFile" class="form-control" accept="image/*">
-        </div>
-
-        <button type="submit" class="btn btn-primary">Opslaan</button>
+    <div class="mt-3">
+        <button type="submit" form="addAuthorForm" class="btn btn-primary">
+            Opslaan
+        </button>
         <a onclick="history.back()" class="btn btn-secondary">Annuleren</a>
-    </form>
+    </div>
 </div>
 </body>
 </html>

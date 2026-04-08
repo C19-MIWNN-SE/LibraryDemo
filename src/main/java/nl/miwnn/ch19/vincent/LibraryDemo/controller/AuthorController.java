@@ -37,6 +37,7 @@ public class AuthorController {
     @GetMapping("/all")
     public String showAuthorOverview(Model model) {
         model.addAttribute("allAuthors", authorService.getAllAuthors());
+        model.addAttribute("formAuthor", new Author());
         model.addAttribute("activePage", "authors");
         return "author-overview";
     }
@@ -49,27 +50,53 @@ public class AuthorController {
 
     @GetMapping("/add")
     public String showAddAuthorForm(Model model) {
-        model.addAttribute("author", new Author());
+        if (!model.containsAttribute("formAuthor")) {
+            model.addAttribute("formAuthor", new Author());
+        }
         return "author-form";
     }
 
     @GetMapping("/edit/{lastName}/{firstName}")
     public String showEditAuthorForm(@PathVariable String lastName, @PathVariable String firstName, Model model) {
-        model.addAttribute("author", authorService.findByLastNameAndFirstName(lastName, firstName));
+        model.addAttribute("formAuthor", authorService.findByLastNameAndFirstName(lastName, firstName));
         return "author-form";
     }
 
     @PostMapping("/save")
-    public String saveOrUpdateAuthor(@Valid @ModelAttribute Author author,
+    public String saveOrUpdateAuthor(@Valid @ModelAttribute Author formAuthor,
                                      BindingResult bindingResult,
-                                     Model model,
                                      RedirectAttributes redirectAttributes,
-                                     @RequestParam("imageFile") MultipartFile imageFile) throws IOException {
-        log.info("Auteur opslaan: {}", author.getFullName());
+                                     @RequestParam("imageFile") MultipartFile imageFile,
+                                     @RequestParam(value = "deleteImage", defaultValue = "false") boolean deleteImage) throws IOException {
+        log.info("Auteur opslaan: {}", formAuthor.getFullName());
 
         if (bindingResult.hasErrors()) {
             log.warn("Validatiefouten bij opslaan: {}", bindingResult.getErrorCount());
-            return "author-form";
+            redirectAttributes.addFlashAttribute("org.springframework.validation.BindingResult.formAuthor", bindingResult);
+            redirectAttributes.addFlashAttribute("formAuthor", formAuthor);
+            return "redirect:/author/add";
+        }
+
+        if (formAuthor.getId() != null) {
+            Author existingAuthor = authorService.findById(formAuthor.getId());
+            existingAuthor.setFirstName(formAuthor.getFirstName());
+            existingAuthor.setLastName(formAuthor.getLastName());
+
+            if (!imageFile.isEmpty()) {
+                Image image = new Image();
+                image.setData(imageFile.getBytes());
+                image.setContentType(imageFile.getContentType());
+                imageRepository.save(image);
+                existingAuthor.setImage(image);
+            } else if (deleteImage) {
+                existingAuthor.setImage(null);
+            }
+
+            authorService.saveAuthor(existingAuthor);
+            log.info("Auteur bijgewerkt: {}", existingAuthor.getFullName());
+            String redirectUrl = UriComponentsBuilder.fromPath("/author/detail/{lastName}/{firstName}")
+                    .buildAndExpand(existingAuthor.getLastName(), existingAuthor.getFirstName()).toUriString();
+            return "redirect:" + redirectUrl;
         }
 
         if (!imageFile.isEmpty()) {
@@ -77,18 +104,12 @@ public class AuthorController {
             image.setData(imageFile.getBytes());
             image.setContentType(imageFile.getContentType());
             imageRepository.save(image);
-            author.setImage(image);
+            formAuthor.setImage(image);
         }
 
-        authorService.saveAuthor(author);
-        log.info("Auteur opgeslagen: {}", author.getFullName());
+        authorService.saveAuthor(formAuthor);
+        log.info("Auteur opgeslagen: {}", formAuthor.getFullName());
         redirectAttributes.addFlashAttribute("successMessage", "Auteur succesvol opgeslagen!");
-
-        if (author.getId() != null) {
-            String redirectUrl = UriComponentsBuilder.fromPath("/author/detail/{lastName}/{firstName}")
-                    .buildAndExpand(author.getLastName(), author.getFirstName()).toUriString();
-            return "redirect:" + redirectUrl;
-        }
         return "redirect:/author/all";
     }
 }

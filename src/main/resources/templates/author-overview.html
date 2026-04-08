@@ -5,6 +5,127 @@
 <div id="content">
     <h1 class="mb-4">Auteurs</h1>
     <div th:replace="~{fragments/author :: authorCardsNew(${allAuthors})}"></div>
+
+    <!-- Modal voor toevoegen -->
+    <div class="modal fade" id="addAuthorModal"
+         tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Auteur toevoegen</h5>
+                    <button type="button" class="btn-close"
+                            data-bs-dismiss="modal"></button>
+                </div>
+
+                <!-- Het formulier-fragment geladen in de modal-body -->
+                <div class="modal-body"
+                     th:insert="~{fragments/author :: authorForm(${formAuthor})}">
+                </div>
+
+                <!-- Knoppen in de modal-footer, gekoppeld via form="addAuthorForm" -->
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary"
+                            data-bs-dismiss="modal">
+                        Annuleren
+                    </button>
+                    <button type="submit"
+                            form="addAuthorForm"
+                            class="btn btn-primary">
+                        Opslaan
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal voor bewerken -->
+    <div class="modal fade" id="editAuthorModal"
+         tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Auteur bewerken</h5>
+                    <button type="button" class="btn-close"
+                            data-bs-dismiss="modal"></button>
+                </div>
+                <form id="editAuthorForm"
+                      th:action="@{/author/save}"
+                      method="post"
+                      enctype="multipart/form-data">
+                    <div class="modal-body">
+                        <input type="hidden" id="editAuthorId" name="id"/>
+                        <div class="mb-3">
+                            <label class="form-label">Voornaam</label>
+                            <input type="text" id="editFirstName"
+                                   name="firstName"
+                                   class="form-control" required/>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Achternaam</label>
+                            <input type="text" id="editLastName"
+                                   name="lastName"
+                                   class="form-control" required/>
+                        </div>
+
+                        <div id="editCurrentImageSection" class="mb-3 d-none">
+                            <label class="form-label">Huidige foto</label>
+                            <div>
+                                <img id="editCurrentImage" src="" alt="Huidige profielfoto"
+                                     class="img-thumbnail" style="max-height: 100px;">
+                            </div>
+                            <div class="form-check mt-2">
+                                <input type="checkbox" id="editDeleteImage" name="deleteImage"
+                                       value="true" class="form-check-input">
+                                <label for="editDeleteImage" class="form-check-label">Foto verwijderen</label>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="editImageFile" class="form-label">Nieuwe foto uploaden</label>
+                            <input type="file" id="editImageFile" name="imageFile"
+                                   class="form-control" accept="image/*">
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary"
+                                data-bs-dismiss="modal">
+                            Annuleren
+                        </button>
+                        <button type="submit" class="btn btn-primary">
+                            Opslaan
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const editModal = document.getElementById('editAuthorModal');
+        editModal.addEventListener('show.bs.modal', function (event) {
+            const button = event.relatedTarget;
+            document.getElementById('editAuthorId').value =
+                button.getAttribute('data-author-id');
+            document.getElementById('editFirstName').value =
+                button.getAttribute('data-first-name');
+            document.getElementById('editLastName').value =
+                button.getAttribute('data-last-name');
+
+            const imageId = button.getAttribute('data-image-id');
+            const imageSection = document.getElementById('editCurrentImageSection');
+            if (imageId) {
+                document.getElementById('editCurrentImage').src = '/images/' + imageId;
+                imageSection.classList.remove('d-none');
+            } else {
+                imageSection.classList.add('d-none');
+            }
+            document.getElementById('editDeleteImage').checked = false;
+            document.getElementById('editImageFile').value = '';
+        });
+    </script>
+
+
 </div>
 </body>
 </html>
