@@ -3,74 +3,17 @@
 <head><title>Boek wijzigen of toevoegen</title></head>
 <body>
 <div id="content">
-    <h1 class="mb-3" th:if="${book.id == null}">Voeg nieuw boek toe</h1>
-    <h1 class="mb-3" th:unless="${book.id == null}">Pas <span th:text="${book.title}"></span> aan</h1>
+    <h1 class="mb-3" th:if="${formBook.id == null}">Voeg nieuw boek toe</h1>
+    <h1 class="mb-3" th:unless="${formBook.id == null}">Pas <span th:text="${formBook.title}"></span> aan</h1>
 
-    <form class="col-lg-6"
-          th:action="@{/book/save}"
-          method="post"
-          th:object="${book}">
+    <div class="col-lg-6"
+         th:replace="~{fragments/book :: bookForm(${formBook}, 'bookForm')}">
+    </div>
 
-        <input type="hidden" th:field="*{id}">
-
-        <div class="mb-3">
-            <label for="title" class="form-label">Titel</label>
-            <input type="text" id="title" class="form-control" th:field="*{title}"/>
-            <span th:if="${#fields.hasErrors('title')}"
-                  th:errors="*{title}"
-                  class="error">
-            </span>
-        </div>
-
-        <div class="mb-3">
-            <label for="authors" class="form-label">Auteurs</label>
-            <select id="authors" class="form-control" th:field="*{authors}" multiple>
-                <option th:each="author : ${allAuthors}"
-                        th:value="${author.id}"
-                        th:text="${author.fullName}">
-                </option>
-            </select>
-        </div>
-
-        <div class="mb-3">
-            <label for="publicationYear" class="form-label">Publicatiejaar</label>
-            <input id="publicationYear"
-                   class="form-control"
-                   th:field="*{publicationYear}"/>
-            <span th:if="${#fields.hasErrors('publicationYear')}"
-                  th:errors="*{publicationYear}"
-                  class="error">
-            </span>
-        </div>
-
-        <div class="mb-3">
-            <label for="genre">Genre</label>
-            <input type="text" id="genre" class="form-control"
-                   th:field="*{genre}" required>
-        </div>
-
-        <div class="mb-3">
-            <label for="coverImageUrl">URL omslagafbeelding</label>
-            <input type="url" id="coverImageUrl"
-                   class="form-control"
-                   th:field="*{coverImageUrl}"
-                   placeholder="https://...">
-        </div>
-        <div class="mb-3">
-            <label for="description">Beschrijving</label>
-            <textarea id="description"
-                      class="form-control"
-                      th:field="*{description}"
-                      rows="5"
-                      placeholder="Optionele beschrijving van het boek">
-            </textarea>
-        </div>
-
-        <button type="submit" class="btn btn-primary">Opslaan</button>
-        <a  onclick="history.back()" class="btn btn-secondary">Annuleren</a>
-    </form>
-    <br/>
-    <p><a th:href="@{/book/all}">Terug naar het overzicht</a></p>
+    <div class="mt-3">
+        <button type="submit" form="bookForm" class="btn btn-primary">Opslaan</button>
+        <a onclick="history.back()" class="btn btn-secondary">Annuleren</a>
+    </div>
 </div>
 </body>
 </html>

@@ -28,6 +28,11 @@ public class BookService {
         return bookRepository.findBooksByTitleContainingIgnoreCase(keyword);
     }
 
+    public Book findById(Long id) {
+        return bookRepository.findById(id).orElseThrow(
+                () -> new EntityNotFoundException(String.format("No book found with id: %d", id)));
+    }
+
     public Book findByTitle(String title) {
         return bookRepository.findBookByTitle(title).orElseThrow(
                 () -> new EntityNotFoundException(String.format("No book found with title: %s", title)));

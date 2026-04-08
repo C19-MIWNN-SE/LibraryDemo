@@ -35,6 +35,7 @@ public class LibraryDemoSecurityConfiguration {
                                 "/book/detail/**",
                                 "/author/all",
                                 "/author/detail/**",
+                                "/genre/**",
                                 "/images/**",
                                 "/css/**",
                                 "/webjars/**"
@@ -55,6 +56,9 @@ public class LibraryDemoSecurityConfiguration {
                                 "/author/add",
                                 "/author/edit/**",
                                 "/author/save",
+                                "/author/delete/**",
+                                "/genre/save",
+                                "/genre/delete/**",
                                 "/user/**"
                         ).hasRole("ADMIN")
                         .anyRequest().authenticated()

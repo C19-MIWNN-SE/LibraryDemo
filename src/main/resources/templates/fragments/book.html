@@ -26,14 +26,19 @@
         <a th:href="@{/book/detail/{title}(title = ${book.title})}">
             <img height="275" th:src="${book.coverImageUrl}" class="card-img-top object-fit-cover" th:alt="|Cover image for ${book.title}|">
         </a>
-        <div class="card-body text-center bg-body-secondary">
+        <div class="card-body text-center bg-body-secondary d-flex flex-column">
             <a th:href="@{/book/detail/{title}(title = ${book.title})}">
                 <h5 class="card-title" th:text="${book.title}"></h5>
             </a>
+            <a th:if="${book.genre != null}"
+               th:href="@{/genre/{sn}(sn=${book.genre.shortName})}"
+               th:text="${book.genre.shortName}"
+               class="badge text-bg-secondary text-decoration-none mt-auto align-self-center"></a>
         </div>
         <ul class="list-group list-group-flush">
             <li class="list-group-item" th:each="author : ${book.authors}">
-                <a th:href="@{/author/detail/{id}(id=${author.id})}" th:text="${author.fullName}"></a>
+                <a th:href="@{/author/detail/{lastName}/{firstName}(lastName=${author.lastName}, firstName=${author.firstName})}"
+                   th:text="${author.fullName}"></a>
             </li>
         </ul>
         <div class="card-footer">
@@ -71,71 +76,60 @@
     </div>
 </div>
 
-<div th:fragment="bookForm(formBook, allAuthors, allGenres, #fields)">
-    <!--/*@thymesVar id="allAuthors" type="java.util.List<nl.miwnn.ch19.vincent.LibraryDemo.model.Author>"*/-->
+<form th:fragment="bookForm(formBook, formId)"
+      th:id="${formId}"
+      th:action="@{/book/save}"
+      method="post"
+      th:object="${formBook}">
     <!--/*@thymesVar id="formBook" type="nl.miwnn.ch19.vincent.LibraryDemo.model.Book"*/-->
 
-    <form class="col-lg-6"
-          th:action="@{/book/save}"
-          method="post"
-          th:object="${book}">
+    <input type="hidden" th:field="*{id}">
 
-        <input type="hidden" th:field="*{id}">
+    <div class="mb-3">
+        <label for="title" class="form-label">Titel</label>
+        <input type="text" id="title" class="form-control" th:field="*{title}"/>
+        <div class="invalid-feedback d-block" th:if="${#fields.hasErrors('title')}" th:errors="*{title}"></div>
+    </div>
 
-        <div class="mb-3">
-            <label for="title" class="form-label">Titel</label>
-            <input type="text" id="title" class="form-control" th:field="*{title}"/>
-            <span th:if="${#fields.hasErrors('title')}"
-                  th:errors="*{title}"
-                  class="error">
-            </span>
-        </div>
+    <div class="mb-3">
+        <label for="authors" class="form-label">Auteurs</label>
+        <select id="authors" class="form-select" th:field="*{authors}" multiple>
+            <option th:each="author : ${allAuthors}"
+                    th:value="${author.id}"
+                    th:text="${author.fullName}">
+            </option>
+        </select>
+    </div>
 
-        <div class="mb-3">
-            <label for="authors" class="form-label">Auteurs</label>
-            <select id="authors" class="form-control" th:field="*{authors}" multiple>
-                <option th:each="author : ${allAuthors}"
-                        th:value="${author.id}"
-                        th:text="${author.fullName}">
-                </option>
-            </select>
-        </div>
+    <div class="mb-3">
+        <label for="publicationYear" class="form-label">Publicatiejaar</label>
+        <input id="publicationYear" class="form-control" th:field="*{publicationYear}"/>
+        <div class="invalid-feedback d-block" th:if="${#fields.hasErrors('publicationYear')}" th:errors="*{publicationYear}"></div>
+    </div>
 
-        <div class="mb-3">
-            <label for="publicationYear" class="form-label">Publicatiejaar</label>
-            <input id="publicationYear"
-                   class="form-control"
-                   th:field="*{publicationYear}"/>
-            <span th:if="${#fields.hasErrors('publicationYear')}"
-                  th:errors="*{publicationYear}"
-                  class="error">
-            </span>
-        </div>
+    <div class="mb-3">
+        <label for="genre" class="form-label">Genre</label>
+        <select id="genre" name="genre" class="form-select">
+            <option value="">— Geen —</option>
+            <option th:each="genre : ${allGenres}"
+                    th:value="${genre.id}"
+                    th:text="${genre.name}"
+                    th:selected="${formBook.genre != null and formBook.genre.id == genre.id}">
+            </option>
+        </select>
+    </div>
 
-        <div class="mb-3">
-            <label for="genre">Genre</label>
-            <input type="text" id="genre" class="form-control"
-                   th:field="*{genre}" required>
-        </div>
+    <div class="mb-3">
+        <label for="coverImageUrl" class="form-label">URL omslagafbeelding</label>
+        <input type="url" id="coverImageUrl" class="form-control"
+               th:field="*{coverImageUrl}" placeholder="https://...">
+    </div>
 
-        <div class="mb-3">
-            <label for="coverImageUrl">URL omslagafbeelding</label>
-            <input type="url" id="coverImageUrl"
-                   class="form-control"
-                   th:field="*{coverImageUrl}"
-                   placeholder="https://...">
-        </div>
-        <div class="mb-3">
-            <label for="description">Beschrijving</label>
-            <textarea id="description"
-                      class="form-control"
-                      th:field="*{description}"
-                      rows="5"
-                      placeholder="Optionele beschrijving van het boek">
-            </textarea>
-        </div>
-
-        <button type="submit" class="btn btn-primary">Opslaan</button>
-        <a  onclick="history.back()" class="btn btn-secondary">Annuleren</a>
-    </form>
-</div>
+    <div class="mb-3">
+        <label for="description" class="form-label">Beschrijving</label>
+        <textarea id="description" class="form-control"
+                  th:field="*{description}" rows="5"
+                  placeholder="Optionele beschrijving van het boek">
+        </textarea>
+    </div>
+</form>

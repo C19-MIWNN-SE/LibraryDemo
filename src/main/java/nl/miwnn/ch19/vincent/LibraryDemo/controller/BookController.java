@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 import nl.miwnn.ch19.vincent.LibraryDemo.model.Book;
 import nl.miwnn.ch19.vincent.LibraryDemo.service.AuthorService;
 import nl.miwnn.ch19.vincent.LibraryDemo.service.BookService;
+import nl.miwnn.ch19.vincent.LibraryDemo.service.GenreService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
@@ -27,10 +28,12 @@ public class BookController {
 
     private final AuthorService authorService;
     private final BookService bookService;
+    private final GenreService genreService;
 
-    public BookController(AuthorService authorService, BookService bookService) {
+    public BookController(AuthorService authorService, BookService bookService, GenreService genreService) {
         this.authorService = authorService;
         this.bookService = bookService;
+        this.genreService = genreService;
     }
 
     @GetMapping("/all")
@@ -56,8 +59,9 @@ public class BookController {
 
     @GetMapping("/add")
     public String showCreateNewBookForm(Model model) {
-        model.addAttribute("book", new Book());
+        model.addAttribute("formBook", new Book());
         model.addAttribute("allAuthors", authorService.getAllAuthors());
+        model.addAttribute("allGenres", genreService.getAllGenres());
         return "book-form";
     }
 
@@ -65,16 +69,15 @@ public class BookController {
     public String showEditForm(@PathVariable String title, Model model) {
         log.info("Bewerkingsformulier geopend voor boek: {}", title);
 
-        Book book = bookService.findByTitle(title);
-        model.addAttribute("book", book);
-
+        model.addAttribute("formBook", bookService.findByTitle(title));
         model.addAttribute("allAuthors", authorService.getAllAuthors());
+        model.addAttribute("allGenres", genreService.getAllGenres());
 
         return "book-form";
     }
 
     @PostMapping("/save")
-    public String saveBook(@Valid @ModelAttribute Book updatedBook,
+    public String saveBook(@Valid @ModelAttribute("formBook") Book updatedBook,
                            BindingResult bindingResult,
                            Model model,
                            RedirectAttributes redirectAttributes) {
@@ -83,6 +86,7 @@ public class BookController {
                     bindingResult.getErrorCount());
 
             model.addAttribute("allAuthors", authorService.getAllAuthors());
+            model.addAttribute("allGenres", genreService.getAllGenres());
             return "book-form";
         }
 

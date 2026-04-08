@@ -16,6 +16,11 @@
             <p class="lead" th:text="${book.description}"></p>
             <p th:unless="${book.description != null and !book.description.isEmpty()}"
                class="placeholder-no-data">Geen beschrijving beschikbaar.</p>
+            <p th:if="${book.genre != null}">
+                <a th:href="@{/genre/{sn}(sn=${book.genre.shortName})}"
+                   th:text="${book.genre.name}"
+                   class="badge text-bg-secondary text-decoration-none fs-6"></a>
+            </p>
 
             <div class="d-flex gap-2 mb-3" sec:authorize="hasRole('ADMIN')">
                 <a th:href="@{/book/edit/{title}(title=${book.title})}" class="btn btn-primary">

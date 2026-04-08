@@ -1,0 +1,83 @@
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      th:replace="~{fragments/layout :: layout(~{::title}, ~{::#content})}">
+<head><title th:text="${genre.name}">Genre</title></head>
+<body>
+<div id="content">
+    <div class="row align-items-center g-5 py-3">
+        <div class="col-lg-9">
+            <h1 class="display-5 fw-bold lh-1 mb-2" th:text="${genre.name}"></h1>
+            <p class="text-muted text-center fs-5" th:text="${genre.shortName}"></p>
+            <div class="d-flex gap-2 mt-2" sec:authorize="hasRole('ADMIN')">
+                <button type="button" class="btn btn-warning"
+                        data-bs-toggle="modal"
+                        data-bs-target="#editGenreModal">
+                    <i class="bi bi-pencil"></i> Bewerken
+                </button>
+                <form th:action="@{/genre/delete/{id}(id=${genre.id})}" method="post" class="m-0">
+                    <button type="submit" class="btn btn-danger">
+                        <i class="bi bi-trash"></i> Verwijderen
+                    </button>
+                </form>
+            </div>
+        </div>
+        <div class="col-lg-3" th:if="${genre.exampleBook != null}">
+            <div th:replace="~{fragments/book :: bookCard(${genre.exampleBook})}"></div>
+        </div>
+    </div>
+
+    <h2 class="mt-4 mb-3">
+        Boeken in dit genre (<span th:text="${genre.books.size()}"></span>)
+    </h2>
+    <div th:replace="~{fragments/book :: bookCards(${genre.books.size() > 6 ? genre.books.subList(0, 6) : genre.books})}"></div>
+    <p th:if="${genre.books.size() > 6}" class="text-muted mt-3">
+        En nog <span th:text="${genre.books.size() - 6}"></span> andere boeken in dit genre.
+    </p>
+
+    <!-- Modal voor bewerken -->
+    <div class="modal fade" id="editGenreModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Genre bewerken</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form id="editGenreForm" th:action="@{/genre/save}" method="post">
+                    <div class="modal-body">
+                        <input type="hidden" name="id" th:value="${genre.id}">
+
+                        <div class="mb-3">
+                            <label for="name" class="form-label">Naam</label>
+                            <input type="text" id="name" name="name" class="form-control"
+                                   th:value="${genre.name}" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="shortName" class="form-label">Afkorting</label>
+                            <input type="text" id="shortName" name="shortName" class="form-control"
+                                   th:value="${genre.shortName}" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="exampleBookId" class="form-label">Voorbeeldboek</label>
+                            <select id="exampleBookId" name="exampleBookId" class="form-select">
+                                <option value="">— Geen —</option>
+                                <option th:each="book : ${genre.books}"
+                                        th:value="${book.id}"
+                                        th:text="${book.title}"
+                                        th:selected="${genre.exampleBook != null and book.id == genre.exampleBook.id}">
+                                </option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuleren</button>
+                        <button type="submit" class="btn btn-primary">Opslaan</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

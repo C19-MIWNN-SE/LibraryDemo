@@ -23,6 +23,9 @@ public class Book {
     @Column(unique = true)
     private String title;
 
+    @ManyToOne
+    private Genre genre;
+
     @ManyToMany
     private List<Author> authors = new ArrayList<>();
 
@@ -31,7 +34,6 @@ public class Book {
     @Column(nullable = true)
     private Integer publicationYear;
 
-    private String genre;
     @Column(nullable = true, length = 2000)
     private String description;
 
@@ -64,6 +66,14 @@ public class Book {
         this.title = title;
     }
 
+    public Genre getGenre() {
+        return genre;
+    }
+
+    public void setGenre(Genre genre) {
+        this.genre = genre;
+    }
+
     public String getCoverImageUrl() {
         return coverImageUrl;
     }
@@ -78,14 +88,6 @@ public class Book {
 
     public void setDescription(String description) {
         this.description = description;
-    }
-
-    public String getGenre() {
-        return genre;
-    }
-
-    public void setGenre(String genre) {
-        this.genre = genre;
     }
 
     public List<Author> getAuthors() {

@@ -1,0 +1,78 @@
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      th:replace="~{fragments/layout :: layout(~{::title}, ~{::#content})}">
+<head><title>Genre-overzicht</title></head>
+<body>
+<div id="content">
+    <h1 class="mb-4">Genres</h1>
+
+    <div class="row row-cols-2 row-cols-md-5 g-4">
+        <div class="col" th:each="genre : ${allGenres}">
+            <div class="card h-100">
+                <a th:href="@{/genre/{sn}(sn=${genre.shortName})}">
+                    <img th:if="${genre.exampleBook != null and genre.exampleBook.coverImageUrl != null}"
+                         th:src="${genre.exampleBook.coverImageUrl}"
+                         th:alt="|Cover van ${genre.exampleBook.title}|"
+                         class="card-img-top" style="object-fit: cover; height: 200px;">
+                    <div th:unless="${genre.exampleBook != null and genre.exampleBook.coverImageUrl != null}"
+                         class="d-flex align-items-center justify-content-center bg-body-secondary"
+                         style="height: 200px;">
+                        <i class="bi bi-book fs-1 text-muted"></i>
+                    </div>
+                </a>
+                <div class="card-body text-center">
+                    <a th:href="@{/genre/{sn}(sn=${genre.shortName})}" class="text-decoration-none">
+                        <h5 class="card-title" th:text="${genre.name}"></h5>
+                    </a>
+                    <small class="text-muted" th:text="|${genre.books.size()} boeken|"></small>
+                </div>
+            </div>
+        </div>
+
+        <div class="col" sec:authorize="hasRole('ADMIN')">
+            <div class="card h-100">
+                <div class="d-flex align-items-center justify-content-center bg-body-secondary"
+                     style="height: 200px;">
+                    <i class="bi bi-tag fs-1 text-muted"></i>
+                </div>
+                <div class="card-body align-content-center text-center">
+                    <button type="button" class="btn btn-primary"
+                            data-bs-toggle="modal"
+                            data-bs-target="#addGenreModal">
+                        Genre toevoegen
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal voor toevoegen -->
+    <div class="modal fade" id="addGenreModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Genre toevoegen</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form id="addGenreForm" th:action="@{/genre/save}" method="post">
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="name" class="form-label">Naam</label>
+                            <input type="text" id="name" name="name" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="shortName" class="form-label">Afkorting</label>
+                            <input type="text" id="shortName" name="shortName" class="form-control" required>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuleren</button>
+                        <button type="submit" class="btn btn-primary">Opslaan</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
