@@ -7,3 +7,6 @@ logging.level.nl.miwnn.ch19.vincent.LibraryDemo=DEBUG
 
 spring.jpa.hibernate.ddl-auto=update
 spring.jpa.show-sql=true
+
+library.seed.admin.password=beheerder
+library.seed.user.password=gebruiker

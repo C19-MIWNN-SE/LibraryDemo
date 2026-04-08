@@ -2,17 +2,11 @@ package nl.miwnn.ch19.vincent.LibraryDemo.controller;
 
 import com.opencsv.CSVReader;
 import com.opencsv.exceptions.CsvException;
-import nl.miwnn.ch19.vincent.LibraryDemo.model.Author;
-import nl.miwnn.ch19.vincent.LibraryDemo.model.Book;
-import nl.miwnn.ch19.vincent.LibraryDemo.model.Copy;
-import nl.miwnn.ch19.vincent.LibraryDemo.model.Image;
-import nl.miwnn.ch19.vincent.LibraryDemo.model.LibraryUser;
-import nl.miwnn.ch19.vincent.LibraryDemo.repository.AuthorRepository;
-import nl.miwnn.ch19.vincent.LibraryDemo.repository.BookRepository;
-import nl.miwnn.ch19.vincent.LibraryDemo.repository.CopyRepository;
-import nl.miwnn.ch19.vincent.LibraryDemo.repository.UserRepository;
+import nl.miwnn.ch19.vincent.LibraryDemo.model.*;
+import nl.miwnn.ch19.vincent.LibraryDemo.repository.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.core.io.ClassPathResource;
@@ -25,7 +19,6 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 /**
  * @author Vincent Velthuizen
@@ -33,24 +26,34 @@ import java.util.UUID;
  */
 @Component
 public class InitializeController {
+    @Value("${library.seed.admin.password}")
+    private String adminPassword;
+
+    @Value("${library.seed.user.password}")
+    private String userPassword;
+
     private final AuthorRepository authorRepository;
     private final BookRepository bookRepository;
     private final CopyRepository copyRepository;
+    private final GenreRepository genreRepository;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
     private final Logger log = LoggerFactory.getLogger(InitializeController.class);
 
     private final Map<String, Author> authorCache = new HashMap<>();
+    private final Map<String, Genre> genreCache = new HashMap<>();
 
     public InitializeController(AuthorRepository authorRepository,
                                 BookRepository bookRepository,
                                 CopyRepository copyRepository,
+                                GenreRepository genreRepository,
                                 UserRepository userRepository,
                                 PasswordEncoder passwordEncoder) {
         this.authorRepository = authorRepository;
         this.bookRepository = bookRepository;
         this.copyRepository = copyRepository;
+        this.genreRepository = genreRepository;
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
     }
@@ -60,41 +63,57 @@ public class InitializeController {
         if (authorRepository.count() == 0) {
             seedAuthors();
         }
+        if (genreRepository.count() == 0) {
+            seedGenres();
+        }
         if (bookRepository.count() == 0) {
             seedBooks();
         }
         if (userRepository.count() == 0) {
-            String password = UUID.randomUUID().toString();
-
-            log.info("========================================================================================");
-            log.info("Generated password for 'beheerder' : {}", password);
-            log.info("========================================================================================");
-
-            LibraryUser admin = new LibraryUser(
-                    "beheerder",
-                    passwordEncoder.encode(password),
-                    true);
-            userRepository.save(admin);
-
-            LibraryUser esmee = new LibraryUser(
-                    "Esmee",
-                    passwordEncoder.encode("Esmee"),
-                    false);
-            userRepository.save(esmee);
-
-            List<Copy> hobbitCopies = copyRepository.findByBookTitle("The Hobbit");
-            if (!hobbitCopies.isEmpty()) {
-                Copy copy = hobbitCopies.get(0);
-                copy.setBorrower(esmee);
-                copy.setBorrowedAt(LocalDateTime.now().minusDays(3));
-                copyRepository.save(copy);
-            } else {
-                log.warn("Kon geen exemplaar van 'The Hobbit' vinden voor Esmee");
-            }
+            seedUsers();
         }
     }
 
+    private void seedUsers() {
+        LibraryUser admin = new LibraryUser(
+                "beheerder",
+                passwordEncoder.encode(adminPassword),
+                true);
+        userRepository.save(admin);
+
+        LibraryUser gebruiker = new LibraryUser(
+                "gebruiker",
+                passwordEncoder.encode(userPassword),
+                false);
+        userRepository.save(gebruiker);
+
+        List<Copy> hobbitCopies = copyRepository.findByBookTitle("The Hobbit");
+        if (!hobbitCopies.isEmpty()) {
+            Copy copy = hobbitCopies.get(0);
+            copy.setBorrower(gebruiker);
+            copy.setBorrowedAt(LocalDateTime.now().minusDays(3));
+            copyRepository.save(copy);
+        } else {
+            log.warn("Kon geen exemplaar van 'The Hobbit' vinden voor 'gebruiker'");
+        }
+
+        log.info("Gebruikers aangemaakt: 2 (beheerder, gebruiker)");
+    }
+
+    private void seedGenres() {
+        addGenre(new Genre("Science Fiction and Fantasy", "SFF"));
+        addGenre(new Genre("Young Adult", "YA"));
+        addGenre(new Genre("Children's books", "Child"));
+        log.info("Genres aangemaakt: {}", genreCache.size());
+    }
+
+    private void addGenre(Genre genre) {
+        genreRepository.save(genre);
+        genreCache.put(genre.getShortName(), genre);
+    }
+
     private void seedAuthors() {
+        int count = 0;
         try (CSVReader reader = new CSVReader(new InputStreamReader(
                 new ClassPathResource("seedData/authors.csv").getInputStream()))) {
             reader.skip(1); // skip header
@@ -112,10 +131,12 @@ public class InitializeController {
                 author.setImage(loadImage(imageUrl));
                 authorRepository.save(author);
                 authorCache.put(fullName, author);
+                count++;
             }
         } catch (IOException | CsvException e) {
             throw new RuntimeException("Kon authors.csv niet inlezen", e);
         }
+        log.info("Auteurs aangemaakt: {}", count);
     }
 
     private Image loadImage(String imageUrl) throws IOException {
@@ -131,6 +152,8 @@ public class InitializeController {
     }
 
     private void seedBooks() {
+        int bookCount = 0;
+        int copyCount = 0;
         try (CSVReader reader = new CSVReader(new InputStreamReader(
                 new ClassPathResource("seedData/books.csv").getInputStream()))) {
             reader.skip(1); // skip header
@@ -146,7 +169,7 @@ public class InitializeController {
                 Book book = new Book();
                 book.setTitle(title);
                 book.setDescription(description);
-                book.setGenre(genre);
+                book.setGenre(genreCache.get(genre));
                 book.setCoverImageUrl(coverImageUrl);
 
                 if (!publicationYearRaw.isEmpty()) {
@@ -163,13 +186,16 @@ public class InitializeController {
                 }
 
                 bookRepository.save(book);
+                bookCount++;
 
                 for (int i = 0; i < totalCopies; i++) {
                     copyRepository.save(new Copy(book));
+                    copyCount++;
                 }
             }
         } catch (IOException | CsvException e) {
             throw new RuntimeException("Kon books.csv niet inlezen", e);
         }
+        log.info("Boeken aangemaakt: {}, exemplaren aangemaakt: {}", bookCount, copyCount);
     }
 }
