@@ -54,7 +54,7 @@
             <ul class="list-unstyled" sec:authorize="hasAnyRole('USER', 'ADMIN')">
                 <li th:each="copy : ${book.copies}" class="mt-2">
                     <form th:if="${copy.available}"
-                          th:action="@{/copies/borrow/{id}(id=${copy.id})}"
+                          th:action="@{/loan/borrow/{id}(id=${copy.id})}"
                           method="post">
                         <button type="submit" class="btn btn-outline-primary w-100"
                                 th:disabled="${borrowDisabled}">
@@ -62,14 +62,13 @@
                         </button>
                     </form>
                     <div th:unless="${copy.available}" class="d-flex flex-column gap-1">
-                        <!-- NEW: toon wie dit exemplaar heeft geleend -->
                         <small class="text-muted"
-                               th:text="|Geleend door: ${copy.borrower?.username}|">
+                               th:text="|Geleend door: ${activeLoanByCopyId[copy.id]?.borrower?.username}|">
                         </small>
                         <small class="text-muted"
-                               th:text="|${copy.daysOut} dag(en) uit|">
+                               th:text="|${activeLoanByCopyId[copy.id]?.daysOut} dag(en) uit|">
                         </small>
-                        <form th:action="@{/copies/return/{id}(id=${copy.id})}"
+                        <form th:action="@{/loan/return/{id}(id=${copy.id})}"
                               method="post">
                             <button type="submit" class="btn btn-outline-secondary w-100"
                                     th:disabled="${borrowDisabled}">

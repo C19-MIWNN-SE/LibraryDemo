@@ -30,10 +30,6 @@ public class LibraryUser implements UserDetails {
 
     private Boolean administrator;
 
-    // TODO hier kan ook Transactional gebruikt worden!
-    @OneToMany(mappedBy = "borrower", fetch = FetchType.EAGER)
-    private List<Copy> borrowedCopies = new ArrayList<>();
-
     public LibraryUser() {}
 
     public LibraryUser(String username, String password, Boolean administrator) {
@@ -102,10 +98,6 @@ public class LibraryUser implements UserDetails {
 
     public void setAdministrator(Boolean administrator) {
         this.administrator = administrator;
-    }
-
-    public List<Copy> getBorrowedCopies() {
-        return borrowedCopies;
     }
 
     @Override

@@ -4,15 +4,13 @@ import jakarta.validation.Valid;
 import nl.miwnn.ch19.vincent.LibraryDemo.dto.ChangePasswordDTO;
 import nl.miwnn.ch19.vincent.LibraryDemo.dto.NewLibraryUserDTO;
 import nl.miwnn.ch19.vincent.LibraryDemo.model.LibraryUser;
-import nl.miwnn.ch19.vincent.LibraryDemo.repository.UserRepository;
-import nl.miwnn.ch19.vincent.LibraryDemo.service.CopyService;
 import nl.miwnn.ch19.vincent.LibraryDemo.service.LibraryUserService;
+import nl.miwnn.ch19.vincent.LibraryDemo.service.LoanService;
 import nl.miwnn.ch19.vincent.LibraryDemo.service.mapper.LibraryUserMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -30,44 +28,24 @@ public class LibraryUserController {
     private static final Logger log = LoggerFactory.getLogger(LibraryUserController.class);
 
     private final LibraryUserService libraryUserService;
-    private final CopyService copyService;
+    private final LoanService loanService;
     private final PasswordEncoder passwordEncoder;
 
     public LibraryUserController(
             LibraryUserService libraryUserService,
-            CopyService copyService,
+            LoanService loanService,
             PasswordEncoder passwordEncoder) {
         this.libraryUserService = libraryUserService;
-        this.copyService = copyService;
+        this.loanService = loanService;
         this.passwordEncoder = passwordEncoder;
     }
     @GetMapping("/home")
     public String showUserHome(@AuthenticationPrincipal LibraryUser currentUser, Model model) {
         log.debug("Gebruikerspagina opgevraagd voor: {}", currentUser.getUsername());
-        // TODO this is a workaround instead of using Transactional upstream
         LibraryUser libraryUser = (LibraryUser) libraryUserService.loadUserByUsername(currentUser.getUsername());
-        model.addAttribute("borrowedCopies", libraryUser.getBorrowedCopies());
+        model.addAttribute("activeLoans", loanService.getActiveLoansForUser(libraryUser));
+        model.addAttribute("recentLoans", loanService.getRecentlyClosedLoansForUser(libraryUser));
         return "user-home";
-    }
-
-    @PostMapping("/home/return/{copyId}")
-    public String returnCopyFromHome(
-            @PathVariable Long copyId,
-            @AuthenticationPrincipal LibraryUser currentUser,
-            RedirectAttributes redirectAttributes) {
-        log.info("Exemplaar {} terugbrengen vanuit gebruikerspagina door: {}", copyId, currentUser.getUsername());
-        if (!copyService.isBorrowedBy(copyId, currentUser)) {
-            log.warn("Gebruiker {} probeerde exemplaar {} terug te brengen dat niet van hen is", currentUser.getUsername(), copyId);
-            redirectAttributes.addFlashAttribute("errorMessage", "U kunt alleen uw eigen geleende boeken terugbrengen.");
-            return "redirect:/user/home";
-        }
-        try {
-            copyService.returnCopy(copyId);
-            redirectAttributes.addFlashAttribute("successMessage", "Boek succesvol teruggebracht.");
-        } catch (IllegalStateException illegalStateException) {
-            redirectAttributes.addFlashAttribute("errorMessage", illegalStateException.getMessage());
-        }
-        return "redirect:/user/home";
     }
 
     @GetMapping("/all")

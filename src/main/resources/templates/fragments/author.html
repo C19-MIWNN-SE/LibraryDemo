@@ -8,14 +8,13 @@
 
 <div th:fragment="authorCardsNew(authors)" class="row row-cols-2 row-cols-md-5 g-4">
     <div th:each="author : ${authors}" th:insert="~{fragments/author :: authorCard(${author})}"></div>
-    <div>
+    <div sec:authorize="hasRole('ADMIN')">
         <div class="col h-100">
             <div class="card h-100">
                 <div class="card-body align-content-center text-center">
                     <button type="button" class="btn btn-primary"
                             data-bs-toggle="modal"
-                            data-bs-target="#addAuthorModal"
-                            sec:authorize="hasRole('ADMIN')">
+                            data-bs-target="#addAuthorModal">
                         Auteur toevoegen
                     </button>
                 </div>

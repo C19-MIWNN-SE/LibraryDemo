@@ -36,6 +36,12 @@
                     <i class="bi bi-tag"></i> Genres
                 </a>
                 <a class="nav-link"
+                   th:classappend="${activePage == 'loans'} ? 'active' : ''"
+                   href="/loan/all"
+                   sec:authorize="hasRole('ADMIN')">
+                    <i class="bi bi-arrow-left-right"></i> Leningen
+                </a>
+                <a class="nav-link"
                    th:classappend="${activePage == 'users'} ? 'active' : ''"
                    href="/user/all"
                    sec:authorize="hasRole('ADMIN')">

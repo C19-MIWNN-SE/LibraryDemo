@@ -41,10 +41,9 @@ public class LibraryDemoSecurityConfiguration {
                                 "/webjars/**"
                         ).permitAll()
                         .requestMatchers(
-                                "/copies/borrow/**",
-                                "/copies/return/**",
+                                "/loan/borrow/**",
+                                "/loan/return/**",
                                 "/user/home",
-                                "/user/home/return/**",
                                 "/user/change-password"
                         ).hasAnyRole("USER", "ADMIN")
                         .requestMatchers(
@@ -57,6 +56,7 @@ public class LibraryDemoSecurityConfiguration {
                                 "/author/edit/**",
                                 "/author/save",
                                 "/author/delete/**",
+                                "/loan/all",
                                 "/genre/save",
                                 "/genre/delete/**",
                                 "/user/**"

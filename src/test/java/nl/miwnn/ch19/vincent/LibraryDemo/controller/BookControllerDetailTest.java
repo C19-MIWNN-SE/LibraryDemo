@@ -3,6 +3,8 @@ package nl.miwnn.ch19.vincent.LibraryDemo.controller;
 import nl.miwnn.ch19.vincent.LibraryDemo.model.Book;
 import nl.miwnn.ch19.vincent.LibraryDemo.service.AuthorService;
 import nl.miwnn.ch19.vincent.LibraryDemo.service.BookService;
+import nl.miwnn.ch19.vincent.LibraryDemo.service.GenreService;
+import nl.miwnn.ch19.vincent.LibraryDemo.service.LoanService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -29,6 +31,12 @@ class BookControllerDetailTest {
 
     @Mock
     private AuthorService authorService;
+
+    @Mock
+    private GenreService genreService;
+
+    @Mock
+    private LoanService loanService;
 
     @InjectMocks
     private BookController bookController;

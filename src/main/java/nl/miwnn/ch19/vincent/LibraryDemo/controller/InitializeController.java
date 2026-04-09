@@ -15,10 +15,11 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * @author Vincent Velthuizen
@@ -26,10 +27,10 @@ import java.util.Map;
  */
 @Component
 public class InitializeController {
-    @Value("${library.seed.admin.password}")
+    @Value("${library.seed.admin.password:#{T(java.util.UUID).randomUUID().toString().replace('-','').substring(0,12)}}")
     private String adminPassword;
 
-    @Value("${library.seed.user.password}")
+    @Value("${library.seed.user.password:#{T(java.util.UUID).randomUUID().toString().replace('-','').substring(0,12)}}")
     private String userPassword;
 
     private final AuthorRepository authorRepository;
@@ -37,6 +38,7 @@ public class InitializeController {
     private final CopyRepository copyRepository;
     private final GenreRepository genreRepository;
     private final UserRepository userRepository;
+    private final LoanRepository loanRepository;
     private final PasswordEncoder passwordEncoder;
 
     private final Logger log = LoggerFactory.getLogger(InitializeController.class);
@@ -49,12 +51,14 @@ public class InitializeController {
                                 CopyRepository copyRepository,
                                 GenreRepository genreRepository,
                                 UserRepository userRepository,
+                                LoanRepository loanRepository,
                                 PasswordEncoder passwordEncoder) {
         this.authorRepository = authorRepository;
         this.bookRepository = bookRepository;
         this.copyRepository = copyRepository;
         this.genreRepository = genreRepository;
         this.userRepository = userRepository;
+        this.loanRepository = loanRepository;
         this.passwordEncoder = passwordEncoder;
     }
 
@@ -72,32 +76,89 @@ public class InitializeController {
         if (userRepository.count() == 0) {
             seedUsers();
         }
+        if (loanRepository.count() == 0) {
+            seedLoans();
+        }
     }
 
     private void seedUsers() {
-        LibraryUser admin = new LibraryUser(
-                "beheerder",
-                passwordEncoder.encode(adminPassword),
-                true);
-        userRepository.save(admin);
+        userRepository.save(new LibraryUser(
+                "beheerder", passwordEncoder.encode(adminPassword), true));
 
-        LibraryUser gebruiker = new LibraryUser(
-                "gebruiker",
-                passwordEncoder.encode(userPassword),
-                false);
-        userRepository.save(gebruiker);
+        userRepository.save(new LibraryUser(
+                "gebruiker", passwordEncoder.encode(userPassword), false));
 
-        List<Copy> hobbitCopies = copyRepository.findByBookTitle("The Hobbit");
-        if (!hobbitCopies.isEmpty()) {
-            Copy copy = hobbitCopies.get(0);
-            copy.setBorrower(gebruiker);
-            copy.setBorrowedAt(LocalDateTime.now().minusDays(3));
-            copyRepository.save(copy);
-        } else {
-            log.warn("Kon geen exemplaar van 'The Hobbit' vinden voor 'gebruiker'");
+        System.out.println("=== SEED WACHTWOORDEN ===");
+        System.out.println("beheerder : " + adminPassword);
+        System.out.println("gebruiker : " + userPassword);
+        System.out.println("========================");
+
+        String emmaPassword = UUID.randomUUID().toString().replace("-", "").substring(0, 12);
+        userRepository.save(new LibraryUser(
+                "Emma", passwordEncoder.encode(emmaPassword), false));
+
+        String thomasPassword = UUID.randomUUID().toString().replace("-", "").substring(0, 12);
+        userRepository.save(new LibraryUser(
+                "Thomas", passwordEncoder.encode(thomasPassword), false));
+
+        log.info("Gebruikers aangemaakt: 4 (beheerder, gebruiker, Emma, Thomas)");
+    }
+
+    private void seedLoans() {
+        LibraryUser gebruiker = userRepository.findByUsername("gebruiker").orElseThrow();
+        LibraryUser emma = userRepository.findByUsername("Emma").orElseThrow();
+        LibraryUser thomas = userRepository.findByUsername("Thomas").orElseThrow();
+
+        // gebruiker: Hobbit → LotR → Mistborn 1 → Mistborn 2 (actief)
+        createClosedLoan(firstCopy("The Hobbit"), gebruiker, -120, -100);
+        createClosedLoan(firstCopy("The Lord of the Rings"), gebruiker, -85, -72);
+        createClosedLoan(firstCopy("The Final Empire"), gebruiker, -60, -46);
+        createActiveLoan(firstAvailableCopy("The Well of Ascension"), gebruiker, -10);
+
+        // emma: Paper Towns → Looking for Alaska → Fault in Our Stars → Turtles (actief)
+        createClosedLoan(firstCopy("Paper Towns"), emma, -150, -135);
+        createClosedLoan(firstCopy("Looking for Alaska"), emma, -120, -104);
+        createClosedLoan(firstCopy("The Fault in Our Stars"), emma, -80, -66);
+        createActiveLoan(firstAvailableCopy("Turtles All the Way Down"), emma, -5);
+
+        // thomas: Name of the Wind → Wise Man's Fear → LotR → Final Name of the Rings (actief)
+        createClosedLoan(firstCopy("The Name of the Wind"), thomas, -200, -183);
+        createClosedLoan(firstCopy("The Wise Man's Fear"), thomas, -160, -145);
+        createClosedLoan(firstCopy("The Lord of the Rings"), thomas, -100, -86);
+        createActiveLoan(firstAvailableCopy("The Final Name of the Rings"), thomas, -8);
+
+        log.info("Leengeschiedenis aangemaakt voor gebruiker, Emma en Thomas");
+    }
+
+    private Copy firstCopy(String bookTitle) {
+        List<Copy> copies = copyRepository.findByBookTitle(bookTitle);
+        if (copies.isEmpty()) {
+            throw new IllegalStateException("Geen exemplaren gevonden voor: " + bookTitle);
         }
+        return copies.get(0);
+    }
 
-        log.info("Gebruikers aangemaakt: 2 (beheerder, gebruiker)");
+    private Copy firstAvailableCopy(String bookTitle) {
+        return copyRepository.findByBookTitle(bookTitle).stream()
+                .filter(Copy::getAvailable)
+                .findFirst()
+                .orElseThrow(() -> new IllegalStateException(
+                        "Geen beschikbaar exemplaar voor: " + bookTitle));
+    }
+
+    private void createClosedLoan(Copy copy, LibraryUser borrower, int startDaysAgo, int endDaysAgo) {
+        Loan loan = new Loan(copy, borrower);
+        loan.setBorrowDate(LocalDate.now().plusDays(startDaysAgo));
+        loan.setReturnDate(LocalDate.now().plusDays(endDaysAgo));
+        loanRepository.save(loan);
+    }
+
+    private void createActiveLoan(Copy copy, LibraryUser borrower, int startDaysAgo) {
+        Loan loan = new Loan(copy, borrower);
+        loan.setBorrowDate(LocalDate.now().plusDays(startDaysAgo));
+        loanRepository.save(loan);
+        copy.setAvailable(false);
+        copyRepository.save(copy);
     }
 
     private void seedGenres() {

@@ -6,8 +6,6 @@ import nl.miwnn.ch19.vincent.LibraryDemo.model.LibraryUser;
 import nl.miwnn.ch19.vincent.LibraryDemo.repository.CopyRepository;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
-
 /**
  * @author Vincent Velthuizen
  * Handle all business logic regarding copies
@@ -16,13 +14,11 @@ import java.time.LocalDateTime;
 public class CopyService {
 
     private final CopyRepository copyRepository;
+    private final LoanService loanService;
 
-    public CopyService(CopyRepository copyRepository) {
+    public CopyService(CopyRepository copyRepository, LoanService loanService) {
         this.copyRepository = copyRepository;
-    }
-
-    public boolean isBorrowedBy(Long copyId, LibraryUser user) {
-        return user.equals(findById(copyId).getBorrower());
+        this.loanService = loanService;
     }
 
     public Copy findById(Long copyId) {
@@ -38,19 +34,23 @@ public class CopyService {
         changeCopyState(copyId, null);
     }
 
-    private Copy changeCopyState(Long copyId, LibraryUser borrower) {
+    private void changeCopyState(Long copyId, LibraryUser borrower) {
         Copy copy = copyRepository.findById(copyId).orElseThrow(
                 () -> new EntityNotFoundException(String.format("Exemplaar met id %d bestaat niet.", copyId)));
 
-        if (borrower == null && copy.getBorrower() == null) {
-            throw new IllegalStateException("Copy is already available");
-        } else if (borrower != null && copy.getBorrower() != null) {
-            throw new IllegalStateException("Copy is already borrowed");
+        if (borrower != null) {
+            copy.setAvailable(false);
+        } else {
+            copy.setAvailable(true);
         }
 
-        copy.setBorrower(borrower);
-        copy.setBorrowedAt(borrower != null ? LocalDateTime.now() : null);
         copyRepository.save(copy);
-        return copy;
+
+        if (borrower != null) {
+            loanService.startLoan(copy, borrower);
+        } else {
+            loanService.closeLoan(copy);
+        }
+
     }
 }

@@ -5,6 +5,7 @@ import nl.miwnn.ch19.vincent.LibraryDemo.model.Book;
 import nl.miwnn.ch19.vincent.LibraryDemo.service.AuthorService;
 import nl.miwnn.ch19.vincent.LibraryDemo.service.BookService;
 import nl.miwnn.ch19.vincent.LibraryDemo.service.GenreService;
+import nl.miwnn.ch19.vincent.LibraryDemo.service.LoanService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
@@ -29,11 +30,14 @@ public class BookController {
     private final AuthorService authorService;
     private final BookService bookService;
     private final GenreService genreService;
+    private final LoanService loanService;
 
-    public BookController(AuthorService authorService, BookService bookService, GenreService genreService) {
+    public BookController(AuthorService authorService, BookService bookService,
+                          GenreService genreService, LoanService loanService) {
         this.authorService = authorService;
         this.bookService = bookService;
         this.genreService = genreService;
+        this.loanService = loanService;
     }
 
     @GetMapping("/all")
@@ -128,6 +132,7 @@ public class BookController {
                                  org.springframework.security.core.Authentication authentication) {
         Book book = bookService.findByTitle(title);
         model.addAttribute("book", book);
+        model.addAttribute("activeLoanByCopyId", loanService.getActiveLoanMapForBook(book));
 
         boolean borrowDisabled = authentication != null
                 && authentication.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))

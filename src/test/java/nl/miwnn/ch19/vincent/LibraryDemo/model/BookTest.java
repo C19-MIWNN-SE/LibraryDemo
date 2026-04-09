@@ -37,7 +37,7 @@ class BookTest {
     @DisplayName("getNumberOfCopies should return 1 for book with 1 borrowed copy")
     void getNumberOfCopiesShouldReturn1ForBookWith1BorrowedCopy() {
         Copy copyBorrowed = new Copy(book);
-        copyBorrowed.setBorrower(new LibraryUser());
+        copyBorrowed.setAvailable(false);
         book.getCopies().add(copyBorrowed);
 
         assertEquals(1, book.getNumberOfCopies());
@@ -47,19 +47,18 @@ class BookTest {
     @DisplayName("getAvailableNumberOfCopies should return zero when all are borrowed")
     void getAvailableNumberOfCopiesShouldReturnZeroWhenAllAreBorrowed() {
         Copy copyBorrowed = new Copy(book);
-        copyBorrowed.setBorrower(new LibraryUser());
+        copyBorrowed.setAvailable(false);
         book.getCopies().add(copyBorrowed);
 
         assertEquals(0, book.getAvailableNumberOfCopies());
     }
 
     @Test
-    @DisplayName("getAvailableNumberOfCopies should return 1 when 1 all 1 copies are available")
-    void getAvailableNumberOfCopiesShouldReturn1When1All1CopiesAreAvailable() {
+    @DisplayName("getAvailableNumberOfCopies should return 1 when 1 of 1 copies is available")
+    void getAvailableNumberOfCopiesShouldReturn1When1Of1CopiesIsAvailable() {
         Copy copyAvailable = new Copy(book);
-        copyAvailable.setBorrower(new LibraryUser());
         book.getCopies().add(copyAvailable);
 
-        assertEquals(0, book.getAvailableNumberOfCopies());
+        assertEquals(1, book.getAvailableNumberOfCopies());
     }
 }

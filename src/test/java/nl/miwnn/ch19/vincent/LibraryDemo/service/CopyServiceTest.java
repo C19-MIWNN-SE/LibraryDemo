@@ -10,7 +10,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.time.LocalDateTime;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -25,95 +24,66 @@ class CopyServiceTest {
     @Mock
     private CopyRepository copyRepository;
 
+    @Mock
+    private LoanService loanService;
+
     @InjectMocks
     private CopyService copyService;
 
     @Test
-    @DisplayName("borrowCopy should make copy unavailable and save")
-    void borrowCopy() {
+    @DisplayName("borrowCopy should mark copy unavailable and save")
+    void borrowCopyShouldMarkCopyUnavailableAndSave() {
         Copy copy = new Copy();
         copy.setId(1L);
+        copy.setAvailable(true);
 
         when(copyRepository.findById(1L)).thenReturn(Optional.of(copy));
 
         copyService.borrowCopy(1L, new LibraryUser());
 
-        assertAll(
-                () -> assertNotNull(copy.getBorrower()),
-                () -> verify(copyRepository, times(1)).save(copy)
-        );
+        assertFalse(copy.getAvailable());
+        verify(copyRepository, times(1)).save(copy);
     }
 
     @Test
-    @DisplayName("borrowCopy should set borrowedAt to approximately now")
-    void borrowCopyShouldSetBorrowedAt() {
+    @DisplayName("borrowCopy should call loanService.startLoan after saving")
+    void borrowCopyShouldDelegateToLoanService() {
         Copy copy = new Copy();
         copy.setId(1L);
-        LocalDateTime before = LocalDateTime.now();
+        LibraryUser borrower = new LibraryUser();
 
         when(copyRepository.findById(1L)).thenReturn(Optional.of(copy));
 
-        copyService.borrowCopy(1L, new LibraryUser());
+        copyService.borrowCopy(1L, borrower);
 
-        assertNotNull(copy.getBorrowedAt());
-        assertFalse(copy.getBorrowedAt().isBefore(before));
+        verify(loanService, times(1)).startLoan(copy, borrower);
     }
 
     @Test
-    @DisplayName("borrowCopy should throw an exception when already borrowed")
-    void borrowCopyShouldThrowAnExceptionWhenAlreadyBorrowed() {
+    @DisplayName("returnCopy should mark copy available and save")
+    void returnCopyShouldMarkCopyAvailableAndSave() {
         Copy copy = new Copy();
         copy.setId(2L);
-        copy.setBorrower(new LibraryUser());
+        copy.setAvailable(false);
 
         when(copyRepository.findById(2L)).thenReturn(Optional.of(copy));
 
-        assertThrows(IllegalStateException.class, () -> copyService.borrowCopy(2L, new LibraryUser()));
-        verify(copyRepository, never()).save(any());
+        copyService.returnCopy(2L);
+
+        assertTrue(copy.getAvailable());
+        verify(copyRepository, times(1)).save(copy);
     }
 
     @Test
-    @DisplayName("returnCopy should make copy available and save")
-    void returnCopyShouldMakeCopyAvailableAndSave() {
+    @DisplayName("returnCopy should call loanService.closeLoan after saving")
+    void returnCopyShouldDelegateToLoanService() {
         Copy copy = new Copy();
-        copy.setId(3L);
-        copy.setBorrower(new LibraryUser());
-        copy.setBorrowedAt(LocalDateTime.now().minusDays(2));
+        copy.setId(2L);
 
-        when(copyRepository.findById(3L)).thenReturn(Optional.of(copy));
+        when(copyRepository.findById(2L)).thenReturn(Optional.of(copy));
 
-        copyService.returnCopy(3L);
+        copyService.returnCopy(2L);
 
-        assertAll(
-                () -> assertNull(copy.getBorrower()),
-                () -> verify(copyRepository, times(1)).save(copy)
-        );
-    }
-
-    @Test
-    @DisplayName("returnCopy should clear borrowedAt")
-    void returnCopyShouldClearBorrowedAt() {
-        Copy copy = new Copy();
-        copy.setId(4L);
-        copy.setBorrower(new LibraryUser());
-        copy.setBorrowedAt(LocalDateTime.now().minusDays(2));
-
-        when(copyRepository.findById(4L)).thenReturn(Optional.of(copy));
-
-        copyService.returnCopy(4L);
-
-        assertNull(copy.getBorrowedAt());
-    }
-
-    @Test
-    @DisplayName("returnCopy should throw an exception when already available")
-    void returnCopyShouldThrowAnExceptionWhenAlreadyAvailable() {
-        Copy copy = new Copy();
-        copy.setId(5L);
-
-        when(copyRepository.findById(5L)).thenReturn(Optional.of(copy));
-
-        assertThrows(IllegalStateException.class, () -> copyService.returnCopy(5L));
-        verify(copyRepository, never()).save(any());
+        verify(loanService, times(1)).closeLoan(copy);
     }
 }

@@ -19,14 +19,11 @@ public class Copy {
     @ManyToOne
     private Book book;
 
-    @ManyToOne
-    @JoinColumn(nullable = true)
-    private LibraryUser borrower = null;
-
-    private LocalDateTime borrowedAt;
+    private Boolean available;
 
     public Copy(Book book) {
         this.book = book;
+        available = true;
     }
 
     public Copy() {
@@ -48,30 +45,11 @@ public class Copy {
         this.book = book;
     }
 
-    public LibraryUser getBorrower() {
-        return borrower;
-    }
-
-    public void setBorrower(LibraryUser borrower) {
-        this.borrower = borrower;
-    }
-
-    public LocalDateTime getBorrowedAt() {
-        return borrowedAt;
-    }
-
-    public void setBorrowedAt(LocalDateTime borrowedAt) {
-        this.borrowedAt = borrowedAt;
-    }
-
-    public long getDaysOut() {
-        if (borrowedAt == null) {
-            return 0;
-        }
-        return ChronoUnit.DAYS.between(borrowedAt, LocalDateTime.now());
-    }
-
     public Boolean getAvailable() {
-        return borrower == null;
+        return available;
+    }
+
+    public void setAvailable(Boolean available) {
+        this.available = available;
     }
 }

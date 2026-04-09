@@ -3,6 +3,8 @@ package nl.miwnn.ch19.vincent.LibraryDemo.controller;
 import nl.miwnn.ch19.vincent.LibraryDemo.model.Book;
 import nl.miwnn.ch19.vincent.LibraryDemo.service.AuthorService;
 import nl.miwnn.ch19.vincent.LibraryDemo.service.BookService;
+import nl.miwnn.ch19.vincent.LibraryDemo.service.GenreService;
+import nl.miwnn.ch19.vincent.LibraryDemo.service.LoanService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +32,12 @@ class BookControllerTest {
 
     @MockitoBean
     private AuthorService authorService;
+
+    @MockitoBean
+    private GenreService genreService;
+
+    @MockitoBean
+    private LoanService loanService;
 
     @Test
     @DisplayName("showBookOverview should return 200 and books in model")

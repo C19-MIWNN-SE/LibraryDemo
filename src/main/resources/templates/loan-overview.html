@@ -1,0 +1,43 @@
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/layout :: layout(~{::title}, ~{::#content})}">
+<head><title>Actieve leningen</title></head>
+<body>
+<div id="content">
+    <h1 class="mb-4">Actieve leningen</h1>
+    <p th:if="${#lists.isEmpty(activeLoans)}" class="text-muted">
+        Er zijn geen actieve leningen.
+    </p>
+    <table class="table" th:unless="${#lists.isEmpty(activeLoans)}">
+        <thead>
+        <tr>
+            <th>Boek</th>
+            <th>Exemplaar</th>
+            <th>Lener</th>
+            <th>Sinds</th>
+            <th>Dagen uit</th>
+            <th></th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="loan : ${activeLoans}">
+            <td>
+                <a th:href="@{/book/detail/{title}(title=${loan.copy.book.title})}"
+                   th:text="${loan.copy.book.title}"></a>
+            </td>
+            <td th:text="${loan.copy.id}"></td>
+            <td th:text="${loan.borrower.username}"></td>
+            <td th:text="${loan.borrowDate}"></td>
+            <td th:text="${loan.daysOut}"></td>
+            <td>
+                <form th:action="@{/loan/return/{id}(id=${loan.copy.id})}"
+                      method="post">
+                    <button type="submit"
+                            class="btn btn-warning btn-sm">Terugbrengen</button>
+                </form>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+</body>
+</html>

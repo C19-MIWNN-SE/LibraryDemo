@@ -4,6 +4,7 @@ import nl.miwnn.ch19.vincent.LibraryDemo.model.Book;
 import nl.miwnn.ch19.vincent.LibraryDemo.model.Copy;
 import nl.miwnn.ch19.vincent.LibraryDemo.model.LibraryUser;
 import nl.miwnn.ch19.vincent.LibraryDemo.service.CopyService;
+import nl.miwnn.ch19.vincent.LibraryDemo.service.LoanService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -12,26 +13,27 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.servlet.mvc.support.RedirectAttributesModelMap;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /**
  * @author Vincent Velthuizen
  */
 @ExtendWith(MockitoExtension.class)
-class CopyControllerTest {
+class LoanControllerTest {
 
     @Mock
     private CopyService copyService;
 
+    @Mock
+    private LoanService loanService;
+
     @InjectMocks
-    private CopyController copyController;
+    private LoanController loanController;
 
     private LibraryUser testUser() {
         return new LibraryUser("testuser", "password", false);
@@ -50,9 +52,9 @@ class CopyControllerTest {
     @DisplayName("borrowCopy should redirect to book detail on success")
     void borrowCopyShouldRedirectToBookDetailOnSuccess() {
         when(copyService.findById(1L)).thenReturn(copyOfBook("The Hobbit"));
-        RedirectAttributes redirectAttributes = new RedirectAttributesModelMap();
+        RedirectAttributesModelMap redirectAttributes = new RedirectAttributesModelMap();
 
-        String result = copyController.borrowCopy(1L, authOf(testUser()), redirectAttributes);
+        String result = loanController.borrowCopy(1L, authOf(testUser()), redirectAttributes);
 
         assertTrue(result.startsWith("redirect:"));
         assertTrue(result.contains("The Hobbit"));
@@ -64,7 +66,7 @@ class CopyControllerTest {
         when(copyService.findById(1L)).thenReturn(copyOfBook("The Hobbit"));
         RedirectAttributesModelMap redirectAttributes = new RedirectAttributesModelMap();
 
-        copyController.borrowCopy(1L, authOf(testUser()), redirectAttributes);
+        loanController.borrowCopy(1L, authOf(testUser()), redirectAttributes);
 
         assertTrue(redirectAttributes.getFlashAttributes().containsKey("successMessage"));
     }
@@ -77,7 +79,7 @@ class CopyControllerTest {
                 .when(copyService).borrowCopy(eq(1L), any());
         RedirectAttributesModelMap redirectAttributes = new RedirectAttributesModelMap();
 
-        copyController.borrowCopy(1L, authOf(testUser()), redirectAttributes);
+        loanController.borrowCopy(1L, authOf(testUser()), redirectAttributes);
 
         assertTrue(redirectAttributes.getFlashAttributes().containsKey("errorMessage"));
     }
@@ -89,55 +91,50 @@ class CopyControllerTest {
         doThrow(new IllegalStateException("Copy is already borrowed"))
                 .when(copyService).borrowCopy(eq(1L), any());
 
-        String result = copyController.borrowCopy(1L, authOf(testUser()), new RedirectAttributesModelMap());
+        String result = loanController.borrowCopy(1L, authOf(testUser()), new RedirectAttributesModelMap());
 
         assertTrue(result.startsWith("redirect:"));
     }
 
     @Test
-    @DisplayName("returnCopy should redirect to book detail on success")
-    void returnCopyShouldRedirectToBookDetailOnSuccess() {
-        when(copyService.findById(1L)).thenReturn(copyOfBook("The Hobbit"));
-        RedirectAttributes redirectAttributes = new RedirectAttributesModelMap();
+    @DisplayName("returnCopy should redirect to referer on success")
+    void returnCopyShouldRedirectToReferer() {
+        RedirectAttributesModelMap redirectAttributes = new RedirectAttributesModelMap();
 
-        String result = copyController.returnCopy(1L, redirectAttributes);
+        String result = loanController.returnCopy(1L, "/book/detail/The%20Hobbit", redirectAttributes);
 
-        assertTrue(result.startsWith("redirect:"));
-        assertTrue(result.contains("The Hobbit"));
+        assertEquals("redirect:/book/detail/The%20Hobbit", result);
     }
 
     @Test
     @DisplayName("returnCopy should set successMessage on success")
     void returnCopyShouldSetSuccessMessageOnSuccess() {
-        when(copyService.findById(1L)).thenReturn(copyOfBook("The Hobbit"));
         RedirectAttributesModelMap redirectAttributes = new RedirectAttributesModelMap();
 
-        copyController.returnCopy(1L, redirectAttributes);
+        loanController.returnCopy(1L, "/book/all", redirectAttributes);
 
         assertTrue(redirectAttributes.getFlashAttributes().containsKey("successMessage"));
     }
 
     @Test
-    @DisplayName("returnCopy should set errorMessage when copy is already available")
-    void returnCopyShouldSetErrorMessageWhenAlreadyAvailable() {
-        when(copyService.findById(1L)).thenReturn(copyOfBook("The Hobbit"));
-        doThrow(new IllegalStateException("Copy is already available"))
+    @DisplayName("returnCopy should set errorMessage when no active loan exists")
+    void returnCopyShouldSetErrorMessageOnFailure() {
+        doThrow(new IllegalStateException("No active loan"))
                 .when(copyService).returnCopy(1L);
         RedirectAttributesModelMap redirectAttributes = new RedirectAttributesModelMap();
 
-        copyController.returnCopy(1L, redirectAttributes);
+        loanController.returnCopy(1L, "/book/all", redirectAttributes);
 
         assertTrue(redirectAttributes.getFlashAttributes().containsKey("errorMessage"));
     }
 
     @Test
-    @DisplayName("returnCopy should still redirect even when copy is already available")
-    void returnCopyShouldStillRedirectWhenAlreadyAvailable() {
-        when(copyService.findById(1L)).thenReturn(copyOfBook("The Hobbit"));
-        doThrow(new IllegalStateException("Copy is already available"))
+    @DisplayName("returnCopy should still redirect even when return fails")
+    void returnCopyShouldStillRedirectOnFailure() {
+        doThrow(new IllegalStateException("No active loan"))
                 .when(copyService).returnCopy(1L);
 
-        String result = copyController.returnCopy(1L, new RedirectAttributesModelMap());
+        String result = loanController.returnCopy(1L, "/book/all", new RedirectAttributesModelMap());
 
         assertTrue(result.startsWith("redirect:"));
     }
